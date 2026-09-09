@@ -1,0 +1,2945 @@
+<title>40 Before 40</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@500;700&display=swap');
+
+  :root{
+    --bg:#100c1f;
+    --bg-soft:#170f2b;
+    --surface:#1d1636;
+    --surface-hi:#261d45;
+    --line:#372c58;
+    --line-soft:#241b3f;
+    --ink:#f6f2ff;
+    --ink-dim:#b6ade0;
+    --ink-faint:#8377ad;
+    --gold:#ffd166;
+
+    --eff-med:#ffb347;
+    --eff-high:#ff7a45;
+    --eff-vhigh:#ef4444;
+    --st-booked:#5b8dfa;
+    --st-done:#4cd07d;
+    --st-ongoing:#b285ff;
+
+    --col-w:86px;
+    --label-w:280px;
+  }
+
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Figtree', ui-sans-serif, system-ui, sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  h1,h2,h3,h4,.display{
+    font-family:'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    color:var(--ink);
+    margin:0;
+    text-wrap:balance;
+  }
+  p{margin:0 0 .9em 0;}
+  a{color:inherit;}
+  ul,ol{margin:0;}
+  button{font-family:inherit;}
+
+  .mono{font-family:'JetBrains Mono', ui-monospace, monospace; font-variant-numeric:tabular-nums;}
+
+  .eyebrow{
+    font-size:.72rem;
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:40;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:16px 28px;
+    background:rgba(16,12,31,.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .topbar .word{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    font-family:'Bricolage Grotesque';
+    font-weight:700;
+    font-size:1.05rem;
+    letter-spacing:-.01em;
+    text-decoration:none;
+    cursor:pointer;
+    border:none;
+    background:none;
+    color:var(--ink);
+    padding:0;
+  }
+  .topbar .word .dot{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--gold);
+  }
+  .topbar nav{display:flex; gap:6px; align-items:center;}
+  .topbar nav button{
+    background:none; border:1px solid transparent; color:var(--ink-dim);
+    font-size:.85rem; font-weight:600; padding:8px 14px; border-radius:999px;
+    cursor:pointer; transition:background .15s, color .15s, border-color .15s;
+  }
+  .topbar nav button:hover{color:var(--ink); border-color:var(--line);}
+  .topbar nav button.is-current{color:var(--bg); background:var(--gold); border-color:var(--gold);}
+  .topbar nav button:focus-visible, .word:focus-visible, .back-btn:focus-visible, .plan-link:focus-visible, .jumpchip:focus-visible{
+    outline:2px solid var(--gold); outline-offset:2px;
+  }
+
+  main{max-width:1080px; margin:0 auto; padding:0 28px 120px;}
+
+  .screen{display:none;}
+  .screen.active{display:block; animation:rise .4s ease both;}
+  @keyframes rise{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+
+  /* ---------- HOME ---------- */
+  .hero{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:48px;
+    align-items:center;
+    padding:64px 0 40px;
+  }
+  .hero h1{
+    font-size:clamp(2.7rem, 5.4vw, 4.4rem);
+    font-weight:700;
+    line-height:.98;
+    letter-spacing:-.02em;
+  }
+  .hero h1 em{
+    font-style:normal;
+    background:linear-gradient(90deg, var(--gold), #fff3d6);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero .tag{
+    margin-top:18px;
+    font-size:1.08rem;
+    color:var(--ink-dim);
+    max-width:46ch;
+  }
+  .hero .range{
+    margin-top:26px;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-size:.85rem;
+    color:var(--ink-faint);
+  }
+  .hero .range .seg{
+    padding:6px 12px;
+    border:1px solid var(--line);
+    border-radius:999px;
+  }
+
+  .wheel-wrap{display:flex; justify-content:center;}
+  .wheel-stage{position:relative; width:min(300px, 78vw); aspect-ratio:1;}
+  .wheel-stage svg{width:100%; height:100%; display:block; transform:rotate(-90deg);}
+  .wheel-center{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    pointer-events:none;
+  }
+  .wheel-center .num{
+    font-family:'Bricolage Grotesque'; font-weight:700;
+    font-size:clamp(2.6rem, 8vw, 3.4rem);
+    line-height:1;
+    letter-spacing:-.02em;
+  }
+  .wheel-center .lbl{
+    margin-top:6px;
+    font-size:.75rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    font-weight:600;
+  }
+  .wheel-center .sub{
+    margin-top:14px;
+    font-size:.78rem;
+    color:var(--ink-dim);
+    border-top:1px solid var(--line);
+    padding-top:10px;
+  }
+
+  .stat-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+    gap:1px;
+    background:var(--line-soft);
+    border:1px solid var(--line-soft);
+    border-radius:14px;
+    overflow:hidden;
+    margin:8px 0 36px;
+  }
+  .stat-tile{
+    background:var(--bg-soft);
+    padding:20px 20px 22px;
+  }
+  .stat-tile .v{
+    font-family:'Bricolage Grotesque'; font-weight:700;
+    font-size:1.9rem;
+    letter-spacing:-.01em;
+  }
+  .stat-tile .k{
+    margin-top:4px;
+    font-size:.78rem;
+    color:var(--ink-faint);
+  }
+  .stat-tile.gold .v{color:var(--gold);}
+
+  .legend{display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin:0 0 18px; font-size:.78rem; color:var(--ink-faint);}
+  .legend-label{font-weight:700; text-transform:uppercase; letter-spacing:.08em; font-size:.7rem; color:var(--ink-faint);}
+  .legend-note{color:var(--ink-faint);}
+  .jumprow{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 52px;}
+  .jumpchip{
+    background:var(--surface); border:1px solid var(--line); color:var(--ink-dim);
+    font-size:.78rem; font-weight:600; padding:7px 14px 7px 10px; border-radius:999px;
+    cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+    transition:border-color .15s, color .15s;
+  }
+  .jumpchip::before{content:''; width:7px; height:7px; border-radius:50%; background:var(--gold); flex-shrink:0;}
+  .jumpchip:hover{border-color:var(--gold); color:var(--ink);}
+
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+  }
+  .section-head h2{font-size:1.5rem; font-weight:700;}
+
+  .cal-cta{
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    flex-wrap:wrap;
+    background:linear-gradient(120deg, #241b3f, #1a1330 60%);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:30px 32px;
+    cursor:pointer;
+    margin:8px 0 20px;
+  }
+  .cal-cta:hover{border-color:var(--gold);}
+  .cal-cta h3{font-size:1.4rem; font-weight:700;}
+  .cal-cta p{color:var(--ink-dim); margin:6px 0 0; font-size:.92rem;}
+  .cal-cta .arrow{
+    font-family:'Bricolage Grotesque'; font-weight:700; font-size:.85rem;
+    color:var(--bg); background:var(--gold); padding:11px 20px; border-radius:999px;
+    white-space:nowrap;
+  }
+
+  .flex-note{
+    font-size:.85rem; color:var(--ink-faint); margin:36px 0 60px; max-width:70ch;
+  }
+
+  /* ---------- CATEGORY BLOCKS (home + detail screens share these) ---------- */
+  .cat-block{margin-bottom:54px; scroll-margin-top:88px;}
+  .cat-block-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+    padding-bottom:16px; margin-bottom:4px; border-bottom:2px solid var(--gold);
+  }
+  .cat-block-title{display:flex; align-items:flex-start; gap:14px;}
+  .cat-block-title .cat-icon{font-size:1.7rem; line-height:1; padding-top:3px;}
+  .cat-block-title .eyebrow{color:var(--gold); margin-bottom:5px;}
+  .cat-block-title h2{font-size:1.55rem; font-weight:700; letter-spacing:-.01em;}
+  .plan-link{
+    flex-shrink:0; background:none; border:1px solid var(--gold); color:var(--gold);
+    font-size:.8rem; font-weight:700; padding:9px 16px; border-radius:999px;
+    cursor:pointer; white-space:nowrap; transition:background .15s, color .15s;
+  }
+  .plan-link:hover{background:var(--gold); color:var(--bg);}
+
+  .item-list{list-style:none; padding:0; margin:0;}
+  .item-row{
+    display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px;
+    padding:12px 4px; border-bottom:1px solid var(--line-soft);
+  }
+  .item-main{display:flex; align-items:flex-start; gap:14px; flex:1 1 240px; min-width:0;}
+  .item-row .idx{
+    font-family:'JetBrains Mono'; font-weight:700; font-size:.8rem; color:var(--ink-faint);
+    width:22px; flex-shrink:0; padding-top:2px;
+  }
+  .item-row .txt{flex:1; font-size:.98rem;}
+  .item-row .txt .tag{
+    display:inline-block; font-size:.68rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--gold); background:rgba(255,209,102,.12); border:1px solid rgba(255,209,102,.35);
+    padding:2px 8px; border-radius:999px; margin-left:8px; vertical-align:2px;
+  }
+  .item-meta{display:flex; align-items:center; gap:10px; flex-shrink:0; margin-left:auto; padding-left:38px;}
+  .effort{
+    flex-shrink:0; font-size:.66rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+    padding:3px 9px; border-radius:999px; white-space:nowrap;
+    border:1px solid var(--line); color:var(--ink-faint);
+  }
+  .effort.med{border-color:var(--eff-med); color:var(--eff-med);}
+  .effort.high{border-color:var(--eff-high); color:var(--eff-high);}
+  .effort.vhigh{background:var(--eff-vhigh); border-color:var(--eff-vhigh); color:#fff;}
+  .cost{
+    flex-shrink:0; font-family:'JetBrains Mono'; font-size:.78rem; color:var(--ink-dim);
+    min-width:58px; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums;
+  }
+  .status{
+    flex-shrink:0; font-size:.7rem; font-weight:700; letter-spacing:.03em;
+    padding:4px 11px; border-radius:999px; white-space:nowrap;
+    border:1px solid var(--line); color:var(--ink-faint);
+  }
+  .status.booked{border-color:var(--st-booked); color:var(--st-booked);}
+  .status.done{background:var(--st-done); border-color:var(--st-done); color:#0c0a16;}
+  .status.ongoing{border:1px dashed var(--st-ongoing); color:var(--st-ongoing);}
+  .plan-jump{
+    flex-shrink:0; background:none; border:1px solid var(--gold); color:var(--gold);
+    font-size:.7rem; font-weight:700; letter-spacing:.02em; padding:4px 11px; border-radius:999px;
+    cursor:pointer; white-space:nowrap; transition:background .15s, color .15s;
+  }
+  .plan-jump:hover{background:var(--gold); color:var(--bg);}
+  .plan-item.plan-flash{animation:planFlash 1.8s ease;}
+  @keyframes planFlash{
+    0%{background:rgba(255,209,102,.18); box-shadow:0 0 0 1px rgba(255,209,102,.4); border-radius:12px;}
+    100%{background:transparent; box-shadow:0 0 0 0 rgba(255,209,102,0); border-radius:12px;}
+  }
+
+  /* ---------- CATEGORY DETAIL SCREEN ---------- */
+  .cat-hero{
+    margin:0 -28px 40px;
+    padding:52px 28px 40px;
+    background:
+      radial-gradient(1100px 320px at 12% 0%, color-mix(in srgb, var(--gold) 18%, transparent), transparent 60%),
+      var(--bg-soft);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .back-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:none; border:1px solid var(--line); color:var(--ink-dim);
+    font-size:.82rem; font-weight:600; padding:8px 14px 8px 10px; border-radius:999px;
+    cursor:pointer; margin-bottom:26px; transition:border-color .15s, color .15s;
+  }
+  .back-btn:hover{border-color:var(--gold); color:var(--ink);}
+  .cat-hero .eyebrow{color:var(--gold);}
+  .cat-hero h1{font-size:clamp(2.2rem, 4.6vw, 3.3rem); font-weight:700; margin-top:10px; letter-spacing:-.02em; display:flex; align-items:center; gap:16px;}
+  .cat-hero .teaser{color:var(--ink-dim); font-size:1.02rem; margin-top:12px; max-width:56ch;}
+  .cat-hero .progress-line{
+    display:flex; align-items:center; gap:14px; margin-top:22px; font-size:.85rem; color:var(--ink-faint);
+  }
+  .cat-hero .progress-line .bar{width:140px; height:6px; border-radius:99px; background:var(--line-soft); overflow:hidden;}
+  .cat-hero .progress-line .bar i{display:block; height:100%; background:var(--gold);}
+
+  .cat-screen .item-list{border-top:1px solid var(--line-soft); margin-bottom:52px;}
+
+  .plan-content{max-width:74ch;}
+  .plan-content .plan-lead{font-size:.85rem; color:var(--ink-faint); margin-bottom:30px;}
+  .plan-item{margin-bottom:34px; padding-bottom:34px; border-bottom:1px solid var(--line-soft);}
+  .plan-item:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+  .plan-item h4{font-size:1.05rem; font-weight:700; color:var(--gold); margin-bottom:10px;}
+  .plan-content p{color:var(--ink-dim); font-size:.96rem;}
+  .plan-content strong{color:var(--ink); font-weight:700;}
+  .plan-content strong.key{color:var(--gold);}
+  .plan-content ul, .plan-content ol{margin:10px 0 10px; padding-left:22px; color:var(--ink-dim); font-size:.96rem;}
+  .plan-content li{padding:3px 0;}
+  .plan-content a{color:var(--gold); text-decoration:underline; text-decoration-color:rgba(255,209,102,.5);}
+  .plan-content table{width:100%; border-collapse:collapse; margin:14px 0 6px; font-size:.88rem;}
+  .plan-content th, .plan-content td{text-align:left; padding:8px 12px 8px 0; border-bottom:1px solid var(--line-soft);}
+  .plan-content th{color:var(--ink-faint); font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em;}
+  .plan-content td{font-family:'JetBrains Mono'; font-size:.85rem; color:var(--ink);}
+  .plan-content td:first-child{font-family:'Figtree'; color:var(--ink-dim);}
+
+  .section-label{
+    font-family:'Bricolage Grotesque'; font-weight:700; font-size:1.05rem; color:var(--ink);
+    margin-bottom:20px; padding-top:6px;
+  }
+
+  /* ---------- CALENDAR ---------- */
+  .cal-hero{
+    margin:0 -28px 44px;
+    padding:52px 28px 40px;
+    background:
+      radial-gradient(1100px 320px at 12% 0%, rgba(255,209,102,.16), transparent 60%),
+      var(--bg-soft);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .cal-hero .eyebrow{color:var(--gold);}
+  .cal-hero h1{font-size:clamp(2.2rem, 4.6vw, 3.3rem); font-weight:700; margin-top:10px;}
+  .cal-hero p{color:var(--ink-dim); font-size:1.02rem; margin-top:12px; max-width:60ch;}
+
+  .timeline{position:relative; padding-left:26px; margin-bottom:20px;}
+  .timeline::before{
+    content:''; position:absolute; left:5px; top:8px; bottom:8px; width:2px;
+    background:var(--gold);
+    opacity:.35; border-radius:99px;
+  }
+  .cal-month{position:relative; margin-bottom:34px;}
+  .cal-month::before{
+    content:''; position:absolute; left:-26px; top:6px; width:12px; height:12px; border-radius:50%;
+    background:var(--gold); box-shadow:0 0 0 4px var(--bg);
+  }
+  .cal-month h4{font-size:1.15rem; font-weight:700; margin-bottom:4px; color:var(--ink);}
+  .cal-month .when{font-size:.76rem; color:var(--ink-faint); margin-bottom:12px; letter-spacing:.03em;}
+  .cal-month ul{list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; gap:8px;}
+  .cal-month li{
+    font-size:.84rem; color:var(--ink-dim);
+    background:var(--surface); border:1px solid var(--line);
+    padding:6px 12px; border-radius:999px;
+  }
+  .cal-month li strong{color:var(--ink); font-weight:700;}
+
+  /* ---------- GANTT ---------- */
+  .gantt-legend{display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin:0 0 22px; font-size:.8rem; color:var(--ink-dim);}
+  .gantt-legend-item{display:flex; align-items:center; gap:7px;}
+  .gantt-swatch{width:22px; height:10px; border-radius:4px; flex-shrink:0; display:inline-block;}
+  .gantt-swatch.sw-planned{background:rgba(246,242,255,.16); border:1px solid var(--line);}
+  .gantt-swatch.sw-booked{background:var(--st-booked);}
+  .gantt-swatch.sw-done{background:var(--st-done);}
+  .gantt-swatch.sw-ongoing{
+    background:repeating-linear-gradient(115deg, var(--st-ongoing), var(--st-ongoing) 5px, transparent 5px, transparent 10px);
+    border:1px solid var(--st-ongoing);
+  }
+  .gantt-outer{margin-bottom:20px;}
+  .gantt-scroll{
+    overflow:auto; max-height:min(72vh, 680px);
+    border:1px solid var(--line); border-radius:14px; background:var(--surface);
+  }
+  .gantt-grid{display:grid; position:relative; width:max-content; min-width:100%;}
+  .gantt-row{display:contents;}
+  .gantt-corner{
+    position:sticky; left:0; top:0; z-index:22;
+    background:var(--surface-hi); border-right:1px solid var(--line); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; padding:10px 14px;
+    font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint);
+  }
+  .gantt-month-head{
+    position:sticky; top:0; z-index:20;
+    background:var(--surface-hi); border-bottom:1px solid var(--line); border-left:1px solid var(--line-soft);
+    padding:10px 6px; text-align:center;
+    font-size:.72rem; font-weight:700; color:var(--ink-dim); white-space:nowrap;
+  }
+  .gantt-month-head.is-current{color:var(--gold);}
+  .gantt-cat-row{
+    grid-column:1 / -1;
+    background:var(--bg-soft); border-bottom:1px solid var(--line); border-top:1px solid var(--line);
+    padding:7px 14px; font-size:.72rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--gold);
+  }
+  .gantt-label{
+    position:sticky; left:0; z-index:8;
+    background:var(--surface); border-right:1px solid var(--line); border-bottom:1px solid var(--line-soft);
+    padding:8px 14px; display:flex; align-items:center; gap:8px;
+    font-size:.78rem; color:var(--ink); line-height:1.25;
+  }
+  .gantt-label .idx{color:var(--ink-faint); font-family:'JetBrains Mono', monospace; font-size:.7rem; flex-shrink:0;}
+  .gantt-track{
+    position:relative; border-bottom:1px solid var(--line-soft); border-left:1px solid var(--line-soft);
+    min-height:38px;
+  }
+  .gantt-track::before{
+    content:''; position:absolute; inset:0;
+    background-image:repeating-linear-gradient(90deg, transparent, transparent calc(var(--col-w) - 1px), var(--line-soft) calc(var(--col-w) - 1px), var(--line-soft) var(--col-w));
+    pointer-events:none;
+  }
+  .gantt-bar{
+    position:absolute; top:8px; height:22px; border-radius:6px;
+    display:flex; align-items:center; padding:0 8px; overflow:hidden;
+    font-size:.68rem; font-weight:600; color:var(--bg); white-space:nowrap;
+  }
+  .gantt-bar.b-planned{background:rgba(246,242,255,.14); border:1px solid var(--line); color:var(--ink-dim);}
+  .gantt-bar.b-booked{background:var(--st-booked); color:#0c1230;}
+  .gantt-bar.b-ongoing{
+    background:repeating-linear-gradient(115deg, var(--st-ongoing), var(--st-ongoing) 6px, rgba(178,133,255,.55) 6px, rgba(178,133,255,.55) 12px);
+    border:1px solid var(--st-ongoing); color:#fff;
+  }
+  .gantt-bar.b-point{
+    width:14px !important; border-radius:50%; padding:0; border:2px solid var(--bg);
+    box-shadow:0 0 0 2px currentColor;
+  }
+  .gantt-bar.b-done{
+    width:16px !important; height:16px; top:11px; border-radius:50%;
+    background:var(--st-done); color:#06301a; padding:0; justify-content:center;
+  }
+  .gantt-today{
+    position:absolute; top:0; bottom:0; width:2px; background:var(--gold); z-index:3; pointer-events:none;
+  }
+  .week-nav{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    margin:-6px 0 22px;
+  }
+  .week-nav-btn{
+    background:var(--surface); border:1px solid var(--line); color:var(--ink-dim);
+    width:38px; height:38px; border-radius:50%; font-size:1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transition:border-color .15s, color .15s;
+  }
+  .week-nav-btn:hover{border-color:var(--gold); color:var(--ink);}
+  .week-nav-label{display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center;}
+  .week-range{font-size:.95rem; color:var(--ink); font-weight:600;}
+  .week-jump{
+    background:none; border:none; color:var(--gold); font-size:.78rem;
+    font-weight:600; cursor:pointer; padding:0;
+  }
+  .week-jump:hover{text-decoration:underline;}
+  .week-tag{font-size:.74rem; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase;}
+
+  .week-list{list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:2px;}
+  .week-item{
+    display:flex; align-items:flex-start; gap:14px;
+    padding:14px 6px; border-bottom:1px solid var(--line-soft);
+  }
+  .week-item.is-today-row{background:linear-gradient(90deg, rgba(255,209,102,.08), transparent 40%);}
+  .week-item.day-start{border-top:1px solid var(--line);}
+  .chk{position:relative; display:flex; align-items:center; cursor:pointer; padding-top:2px; flex-shrink:0;}
+  .chk input{position:absolute; opacity:0; width:22px; height:22px; margin:0; cursor:pointer;}
+  .chk .box{
+    width:22px; height:22px; border-radius:7px; border:1.5px solid var(--line);
+    background:var(--bg-soft); display:flex; align-items:center; justify-content:center;
+    transition:border-color .15s, background .15s;
+  }
+  .chk .box::after{
+    content:''; width:6px; height:11px; border-right:2px solid var(--bg); border-bottom:2px solid var(--bg);
+    transform:rotate(45deg) translate(-1px,-1px); opacity:0;
+  }
+  .chk input:checked + .box{background:var(--st-done); border-color:var(--st-done);}
+  .chk input:checked + .box::after{opacity:1;}
+  .chk input:focus-visible + .box{outline:2px solid var(--gold); outline-offset:2px;}
+  .wi-body{flex:1; min-width:0;}
+  .wi-meta{display:flex; align-items:center; gap:8px; margin-bottom:3px; flex-wrap:wrap;}
+  .wi-day{font-size:.72rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint);}
+  .is-today-row .wi-day{color:var(--gold);}
+  .wi-theme{font-size:.72rem; color:var(--ink-faint);}
+  .wi-tag{
+    font-size:.68rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+    color:var(--gold); background:rgba(255,209,102,.12); border:1px solid rgba(255,209,102,.35);
+    padding:1px 8px; border-radius:999px;
+  }
+  .wi-text{font-size:.94rem; line-height:1.45; color:var(--ink);}
+  .week-item.is-done .wi-text{color:var(--ink-faint); text-decoration:line-through;}
+  .week-item.is-done .wi-meta{opacity:.6;}
+  .wi-actions{display:flex; align-items:center; gap:6px; flex-shrink:0; margin-left:auto; padding-top:1px;}
+  .wi-push, .wi-remove{
+    background:none; border:1px solid var(--line); color:var(--ink-faint);
+    font-size:.72rem; font-weight:600; padding:5px 10px; border-radius:999px; cursor:pointer;
+    white-space:nowrap; transition:border-color .15s, color .15s;
+  }
+  .wi-push:hover, .wi-remove:hover{border-color:var(--gold); color:var(--ink);}
+  .wi-remove{padding:5px 9px;}
+
+  .add-row{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    background:var(--surface); border:1px dashed var(--line); border-radius:12px;
+    padding:14px 16px; margin-bottom:28px;
+  }
+  .add-select{
+    flex:1; min-width:220px; background:var(--bg-soft); border:1px solid var(--line);
+    color:var(--ink); font-family:inherit; font-size:.86rem; padding:9px 12px; border-radius:8px;
+  }
+  .add-btn{
+    background:var(--gold); border:none; color:var(--bg); font-weight:700;
+    font-size:.84rem; padding:9px 18px; border-radius:8px; cursor:pointer;
+  }
+  .add-btn:hover{filter:brightness(1.08);}
+  .sync-note{font-size:.76rem; color:var(--ink-faint); margin:-16px 0 24px;}
+  .week-cta{
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    flex-wrap:wrap;
+    background:linear-gradient(120deg, #241b3f, #1a1330 60%);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:30px 32px;
+    cursor:pointer;
+    margin:8px 0 20px;
+  }
+  .week-cta:hover{border-color:var(--gold);}
+  .week-cta h3{font-size:1.4rem; font-weight:700;}
+  .week-cta p{color:var(--ink-dim); margin:6px 0 0; font-size:.92rem;}
+  .week-cta .arrow{
+    font-family:'Bricolage Grotesque'; font-weight:700; font-size:.85rem;
+    color:var(--bg); background:var(--gold); padding:11px 20px; border-radius:999px;
+    white-space:nowrap;
+  }
+
+  @media (max-width: 760px){
+    .hero{grid-template-columns:1fr; gap:32px; padding:44px 0 24px;}
+    .wheel-wrap{order:-1;}
+    .stat-row{grid-template-columns:repeat(2, 1fr);}
+    main{padding:0 18px 100px;}
+    .topbar{padding:14px 18px;}
+    .topbar nav{overflow-x:auto; max-width:56vw;}
+    .stat-row{grid-template-columns:1fr 1fr;}
+    .cat-hero, .cal-hero{margin:0 -18px 32px; padding:40px 18px 30px;}
+    .cat-block-head{flex-direction:column;}
+    :root{--col-w:60px; --label-w:170px;}
+    .gantt-label{font-size:.72rem; padding:7px 10px;}
+  }
+</style>
+
+<div class="topbar">
+  <button class="word" data-nav="home" aria-label="Go to dashboard">
+    <span class="dot" aria-hidden="true"></span> 40 Before 40
+  </button>
+  <nav aria-label="Quick jump">
+    <button data-nav="home">Dashboard</button>
+    <button data-nav="weekly">This Week</button>
+    <button data-nav="calendar">Calendar</button>
+    <button data-nav="gantt">Gantt</button>
+  </nav>
+</div>
+
+<main>
+
+  <!-- ============ HOME ============ -->
+  <section class="screen active" id="home">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">The list, the plan, the countdown</div>
+        <h1>64 things<br>before <em>40</em>.</h1>
+        <p class="tag">Ten categories, one clock running. Every goal on this list has somewhere to live and, mostly, a date already circled &mdash; this is where the whole thing gets tracked from now until the morning I turn forty.</p>
+        <div class="range">
+          <span class="seg">Sept 3, 2026</span>
+          <span aria-hidden="true">&rarr;</span>
+          <span class="seg">Oct 7, 2027</span>
+        </div>
+      </div>
+      <div class="wheel-wrap">
+        <div class="wheel-stage">
+          <svg viewBox="0 0 300 300" role="img" aria-label="Countdown ring to October 7, 2027">
+            <circle cx="150" cy="150" r="120" fill="none" stroke="var(--line-soft)" stroke-width="22"></circle>
+            <circle id="progress-ring" cx="150" cy="150" r="120" fill="none" stroke="var(--gold)" stroke-width="22" stroke-linecap="round"></circle>
+          </svg>
+          <div class="wheel-center">
+            <div class="num mono" id="stat-days">&nbsp;</div>
+            <div class="lbl">days to go</div>
+            <div class="sub">5 of 64 already locked in</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-tile"><div class="v mono" id="stat-days2">&mdash;</div><div class="k">days until 40</div></div>
+      <div class="stat-tile"><div class="v mono" id="stat-weeks">&mdash;</div><div class="k">weeks until 40</div></div>
+      <div class="stat-tile gold"><div class="v mono">5 / 64</div><div class="k">goals already done</div></div>
+    </div>
+
+    <div class="legend">
+      <span class="legend-label">Effort</span>
+      <span class="effort">Low</span><span class="effort med">Medium</span><span class="effort high">High</span><span class="effort vhigh">Very High</span>
+      <span class="legend-label" style="margin-left:18px;">Status</span>
+      <span class="status">Planned</span><span class="status booked">Booked</span><span class="status done">Done</span><span class="status ongoing">Ongoing</span>
+      <span class="legend-label" style="margin-left:18px;">Cost</span>
+      <span class="legend-note">exact price where known, otherwise Free / $ / $$ / $$$ / $$$$</span>
+    </div>
+
+    <div class="jumprow" aria-label="Jump to category">
+      <button class="jumpchip" onclick="document.getElementById('grp-fitness').scrollIntoView({behavior:'smooth',block:'start'})">Fitness &amp; Body</button>
+      <button class="jumpchip" onclick="document.getElementById('grp-beauty').scrollIntoView({behavior:'smooth',block:'start'})">Beauty</button>
+      <button class="jumpchip" onclick="document.getElementById('grp-books').scrollIntoView({behavior:'smooth',block:'start'})">Books/Film/Music</button>
+      <button class="jumpchip" onclick="document.getElementById('grp-food').scrollIntoView({behavior:'smooth',block:'start'})">Food</button>
+      <button class="jumpchip" onclick="document.getElementById('grp-creative').scrollIntoView({behavior:'smooth',block:'start'})">Creative</button>
+      <button class="jumpchip" onclick="document.getElementById('grp-travel').scrollIntoView({behavior:'smooth',block:'start'})">Travel</button>
+      <button class="jumpchip" onclick="document.getElementById('grp-nyc').scrollIntoView({behavior:'smooth',block:'start'})">NYC</button>
+      <button class="jumpchip" onclick="document.getElementById('grp-relationships').scrollIntoView({behavior:'smooth',block:'start'})">Relationships</button>
+      <button class="jumpchip" onclick="document.getElementById('grp-career').scrollIntoView({behavior:'smooth',block:'start'})">Career/Money</button>
+      <button class="jumpchip" onclick="document.getElementById('grp-legacy').scrollIntoView({behavior:'smooth',block:'start'})">Legacy</button>
+      <button class="jumpchip gold" data-nav="weekly">This Week &rarr;</button>
+      <button class="jumpchip gold" data-nav="calendar">Calendar &rarr;</button>
+      <button class="jumpchip gold" data-nav="gantt">Gantt &rarr;</button>
+    </div>
+
+    <!-- FITNESS -->
+    <div class="cat-block" id="grp-fitness">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#127939;&#65039;</span>
+          <div><div class="eyebrow">Items 01&ndash;07 &middot; 1 of 7 complete</div><h2>Fitness &amp; Body</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-fitness">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">01</span><span class="txt">Get a professional running gait / strength assessment</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$370</span><span class="status booked">Scheduled</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">02</span><span class="txt">Lift a certain amount &mdash; deadlift goal, from a 118lb bodyweight</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">~$150/session</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-fitness" data-anchor="plan-02" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">03</span><span class="txt">Run another half marathon, PR under 2 hours</span></div><div class="item-meta"><span class="effort vhigh">Very High</span><span class="cost">~$150 entry</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-fitness" data-anchor="plan-03" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">04</span><span class="txt">Meal prep for a full month</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-fitness" data-anchor="plan-04" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">05</span><span class="txt">Build and adhere to a sleep routine for a month</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-fitness" data-anchor="plan-05" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">06</span><span class="txt">Plank challenge, aim for a specific time</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-fitness" data-anchor="plan-06" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">07</span><span class="txt">40 push-ups in a row</span></div><div class="item-meta"><span class="effort vhigh">Very High</span><span class="cost">Free</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-fitness" data-anchor="plan-07" title="Jump to the detailed plan">Plan</button></div></li>
+      </ul>
+    </div>
+
+    <!-- BEAUTY -->
+    <div class="cat-block" id="grp-beauty">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#128132;</span>
+          <div><div class="eyebrow">Items 08&ndash;13 &middot; 0 of 6 complete</div><h2>Beauty &amp; Self-care</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-beauty">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">08</span><span class="txt">Find a therapist I like</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Insurance-covered</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-beauty" data-anchor="plan-08" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">09</span><span class="txt">Dial in a proper skincare routine</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-beauty" data-anchor="plan-09" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">10</span><span class="txt">Get a laser facial</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$$</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">11</span><span class="txt">Get eyebrows microneedled</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">~$800</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">12</span><span class="txt">Get a proper bra fitting</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status ongoing">Ongoing</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">13</span><span class="txt">Buy signature always-in earrings <span class="tag">Nov 27</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">~$500</span><span class="status open">Planned</span></div></li>
+      </ul>
+    </div>
+
+    <!-- BOOKS FILM MUSIC -->
+    <div class="cat-block" id="grp-books">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#128218;</span>
+          <div><div class="eyebrow">Items 14&ndash;22 &middot; 2 of 9 complete</div><h2>Books, Film, Music</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-books">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">14</span><span class="txt">Read a book in Spanish, ideally written originally in Spanish</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">15</span><span class="txt">Fill out bookshelves intentionally with books I love</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$</span><span class="status ongoing">Ongoing</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">16</span><span class="txt">Official favorite books list, reread top 10</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-books" data-anchor="plan-16" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">17</span><span class="txt">Official favorite movies list, rewatch top 10</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-books" data-anchor="plan-16" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">18</span><span class="txt">Official favorite albums list</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-books" data-anchor="plan-16" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">19</span><span class="txt">Personal &ldquo;canon&rdquo; of 40 works that shaped me</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-books" data-anchor="plan-16" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">20</span><span class="txt">Book signing &mdash; Priya Parker <span class="tag">Sept 9</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$30</span><span class="status booked">Booked</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">21</span><span class="txt">Front row show/musical &mdash; Kacey Musgraves @ MSG</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status done">Done</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">22</span><span class="txt">Read over 300 books in my 30s</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-books" data-anchor="plan-22" title="Jump to the detailed plan">Plan</button></div></li>
+      </ul>
+    </div>
+
+    <!-- FOOD -->
+    <div class="cat-block" id="grp-food">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#127869;&#65039;</span>
+          <div><div class="eyebrow">Items 23&ndash;28 &middot; 0 of 6 complete</div><h2>Food &amp; Cooking</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-food">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">23</span><span class="txt">Staten Island Ferry to Nonna's restaurant</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">24</span><span class="txt">Learn to make mapo tofu</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">25</span><span class="txt">Make my favorite chai, write the recipe</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">26</span><span class="txt">Learn signature dishes, no recipe needed</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-food" data-anchor="plan-26" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">27</span><span class="txt">Host a dinner party of signature dishes</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">28</span><span class="txt">Make a signature cocktail</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+      </ul>
+    </div>
+
+    <!-- CREATIVE -->
+    <div class="cat-block" id="grp-creative">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#127912;</span>
+          <div><div class="eyebrow">Items 29&ndash;33 &middot; 0 of 5 complete</div><h2>Creative &amp; Hobbies &amp; Play</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-creative">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">29</span><span class="txt">In-person speed puzzling competition</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$100</span><span class="status ongoing">Ongoing</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">30</span><span class="txt">Sew a few more clothing items</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">$250</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-creative" data-anchor="plan-30" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">31</span><span class="txt">Make my own candle scent</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$200</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">32</span><span class="txt">Paint or stitch something to hang in my apartment</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$200</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">33</span><span class="txt">Replace old framed pictures/prints</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$200</span><span class="status ongoing">Ongoing</span></div></li>
+      </ul>
+    </div>
+
+    <!-- TRAVEL -->
+    <div class="cat-block" id="grp-travel">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#129523;</span>
+          <div><div class="eyebrow">Items 34&ndash;38 &middot; 1 of 5 complete</div><h2>Travel</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-travel">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">34</span><span class="txt">Visit 2 new countries to reach 35 total<span class="tag">Open decision</span></span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$1,000</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">35</span><span class="txt">Visit New Orleans <span class="tag">Oct 22&ndash;25</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$1,000</span><span class="status booked">Booked</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">36</span><span class="txt">Live in Mexico for a full month</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">$2,000</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">37</span><span class="txt">Sleep under the stars a few nights</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$</span><span class="status ongoing">Ongoing</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">38</span><span class="txt">Go to a drive-in movie</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+      </ul>
+    </div>
+
+    <!-- NYC -->
+    <div class="cat-block" id="grp-nyc">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#128509;</span>
+          <div><div class="eyebrow">Items 39&ndash;48 &middot; 1 of 10 complete</div><h2>Classic New York</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-nyc">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">39</span><span class="txt">Attend the US Open</span></div><div class="item-meta"><span class="status done">Done</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">40</span><span class="txt">Dim sum crawl, Chinatown</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$100</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">41</span><span class="txt">Walk Manhattan north to south in one go <span class="tag">Oct 7</span></span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">42</span><span class="txt">See jazz at Village Vanguard</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$100</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">43</span><span class="txt">Brooklyn Bridge walk at sunrise</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">44</span><span class="txt">Coney Island day</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$100</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">45</span><span class="txt">Ride the Roosevelt Island Tramway</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$5</span><span class="status ongoing">Ongoing</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">46</span><span class="txt">Go to a club to dance at 4am <span class="tag">maybe Oct 7</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$50</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">47</span><span class="txt">Attend a Yankees game</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$50</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">48</span><span class="txt">Go to a taping of SNL or another late night show</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span></div></li>
+      </ul>
+    </div>
+
+    <!-- RELATIONSHIPS -->
+    <div class="cat-block" id="grp-relationships">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#128140;</span>
+          <div><div class="eyebrow">Items 49&ndash;50 &middot; 0 of 2 complete</div><h2>Relationships</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-relationships">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">49</span><span class="txt">Send 50 cards or letters</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$300</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-relationships" data-anchor="plan-49" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">50</span><span class="txt">Start a monthly supper club, kicking off with &ldquo;hot takes hot bites&rdquo;</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">$$</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-relationships" data-anchor="plan-50" title="Jump to the detailed plan">Plan</button></div></li>
+      </ul>
+    </div>
+
+    <!-- CAREER -->
+    <div class="cat-block" id="grp-career">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#128188;</span>
+          <div><div class="eyebrow">Items 51&ndash;57 &middot; 0 of 7 complete</div><h2>Career / Money</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-career">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">51</span><span class="txt">Earn money doing learning/education consulting outside my 9-5</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span><button class="plan-jump" data-nav="cat-career" data-anchor="plan-51" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">52</span><span class="txt">Find a financial planner</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free–$$</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-career" data-anchor="plan-52" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">53</span><span class="txt">Create retirement goals, combine 401ks</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">54</span><span class="txt">Update jessicaslocum.com with 3 pieces of writing</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-career" data-anchor="plan-54" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">55</span><span class="txt">Build a personal budget I stick to</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-career" data-anchor="plan-55" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">56</span><span class="txt">Full financial declutter</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">Free</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-career" data-anchor="plan-56" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">57</span><span class="txt">Set a target net worth / savings goal for 50</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      </ul>
+    </div>
+
+    <!-- LEGACY -->
+    <div class="cat-block" id="grp-legacy">
+      <div class="cat-block-head">
+        <div class="cat-block-title">
+          <span class="cat-icon">&#128368;</span>
+          <div><div class="eyebrow">Items 58&ndash;64 &middot; 0 of 7 complete</div><h2>Legacy / Reflection</h2></div>
+        </div>
+        <button class="plan-link" data-nav="cat-legacy">View the full plan &rarr;</button>
+      </div>
+      <ul class="item-list">
+        <li class="item-row"><div class="item-main"><span class="idx">58</span><span class="txt">Write memoir chapters (consider a class)</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">Free–$$</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-legacy" data-anchor="plan-58" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">59</span><span class="txt">Write a letter to my 50-year-old self</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">60</span><span class="txt">Get grandmother's old interview off my computer, backed up</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">61</span><span class="txt">Professional boudoir photo shoot</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$$</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">62</span><span class="txt">Organize and back up my digital photos</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-legacy" data-anchor="plan-62" title="Jump to the detailed plan">Plan</button></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">63</span><span class="txt">Go to a psychic <span class="tag">maybe Oct 7</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">64</span><span class="txt">Record a video message to my future kids or myself</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      </ul>
+    </div>
+
+    <div class="week-cta" data-nav="weekly" role="button" tabindex="0">
+      <div>
+        <h3>What to do this week</h3>
+        <p>A day-by-day plan for the next seven days, built from today&rsquo;s actual date.</p>
+      </div>
+      <span class="arrow">Open this week &rarr;</span>
+    </div>
+
+    <div class="cal-cta" data-nav="calendar" role="button" tabindex="0">
+      <div>
+        <h3>The month-by-month calendar</h3>
+        <p>Every goal above, laid out on the actual road from here to October 7, 2027.</p>
+      </div>
+      <span class="arrow">Open calendar &rarr;</span>
+    </div>
+
+    <div class="week-cta" data-nav="gantt" role="button" tabindex="0">
+      <div>
+        <h3>The full 13-month Gantt</h3>
+        <p>All 64 goals as timeline bars, side by side, so you can see the whole year at a glance.</p>
+      </div>
+      <span class="arrow">Open Gantt &rarr;</span>
+    </div>
+
+    <p class="flex-note">No fixed date yet, for whenever the moment is right: Roosevelt Island Tramway, the Brooklyn Bridge sunrise walk, the bra fitting, filling out the bookshelves from thrift shops, practicing signature dishes, sewing time, and the SNL / late-night lottery. (The four &ldquo;official lists&rdquo; now run on a strict first-Sunday-of-the-month rotation &mdash; see the weekly view.)</p>
+  </section>
+
+  <!-- ============ FITNESS DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-fitness">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 01 &middot; Items 01&ndash;07</div>
+      <h1><span>&#127939;&#65039;</span> Fitness &amp; Body</h1>
+      <p class="teaser">Strength numbers, a faster half, a body that keeps up &mdash; fully planned, start to finish.</p>
+      <div class="progress-line"><div class="bar"><i style="width:14%"></i></div><span>1 of 7 already scheduled</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">01</span><span class="txt">Get a professional running gait / strength assessment</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$370</span><span class="status booked">Scheduled</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">02</span><span class="txt">Lift a certain amount &mdash; deadlift goal, from a 118lb bodyweight</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">~$150/session</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">03</span><span class="txt">Run another half marathon, PR under 2 hours</span></div><div class="item-meta"><span class="effort vhigh">Very High</span><span class="cost">~$150 entry</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">04</span><span class="txt">Meal prep for a full month</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">05</span><span class="txt">Build and adhere to a sleep routine for a month</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">06</span><span class="txt">Plank challenge, aim for a specific time</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">07</span><span class="txt">40 push-ups in a row</span></div><div class="item-meta"><span class="effort vhigh">Very High</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <div class="plan-item">
+        <h4>01 &middot; Running gait / strength assessment</h4>
+        <p>Already scheduled. This is the foundation piece &mdash; results feed directly into both the lifting goal and the half marathon training plan.</p>
+      </div>
+      <div class="plan-item" id="plan-02">
+        <h4>02 &middot; Lift a certain amount</h4>
+        <p>Bodyweight: 118 lbs. Targets set as multiples of bodyweight:</p>
+        <table>
+          <tr><th>Lift</th><th>Target range</th><th>In lbs</th></tr>
+          <tr><td>Deadlift (primary)</td><td>1&ndash;1.25x bodyweight</td><td>118&ndash;148 lbs</td></tr>
+          <tr><td>Squat (secondary)</td><td>0.75&ndash;1x bodyweight</td><td>89&ndash;118 lbs</td></tr>
+          <tr><td>Bench press</td><td>0.5&ndash;0.6x bodyweight</td><td>59&ndash;71 lbs</td></tr>
+          <tr><td>Overhead press</td><td>0.35&ndash;0.4x bodyweight</td><td>41&ndash;47 lbs</td></tr>
+        </table>
+        <p><strong class="key">Headline goal: deadlift 135 lbs.</strong> Secondary: squat 95&ndash;100 lbs.</p>
+        <ul>
+          <li><strong class="key">Phase 1, weeks 1&ndash;4 (Sept 2026):</strong> 2&ndash;3 trainer sessions to groove safe deadlift and squat form and establish real tested starting numbers (not estimates) for all four lifts.</li>
+          <li><strong class="key">Phase 2, weeks 5&ndash;12 (Oct&ndash;Nov 2026):</strong> 2 lifting sessions/week. Progressive overload &mdash; add 5 lbs to deadlift and squat every 1&ndash;2 sessions as long as form holds (video-check every session), smaller 2.5 lb jumps on bench/OHP. Runs in parallel with the push-up progression, since pressing strength compounds both.</li>
+          <li><strong class="key">Phase 3, weeks 13&ndash;20 (Dec 2026&ndash;Jan 2027):</strong> Slower, more deliberate progression as weights get heavier &mdash; expect smaller jumps and occasional plateau weeks; take a 1&ndash;2 week deload if form starts breaking down. Target hitting 135 lbs on deadlift by the end of this phase.</li>
+          <li><strong class="key">Phase 4 (Feb 2027):</strong> Dedicated testing session (with the trainer, if still working together) to attempt and confirm the 135 lb deadlift as an official max, plus record final numbers on the three secondary lifts.</li>
+        </ul>
+        <p>Realistic total timeline: 4&ndash;6 months from a September 2026 start, landing the confirmed max around Jan&ndash;Feb 2027 &mdash; well ahead of the birthday, with room to push further if it comes easily.</p>
+      </div>
+      <div class="plan-item" id="plan-03">
+        <h4>03 &middot; Half marathon &mdash; 2:15 &rarr; sub-2:00</h4>
+        <p>About a 1:09/mile improvement (10:18 &rarr; 9:09 per mile). <strong class="key">Race: RBC Brooklyn Half Marathon</strong>, preliminarily May 22, 2027 (confirm official date once registration opens) &mdash; chosen over the NYCRUNS Brooklyn Experience Half (Apr 25, 2027) to keep the dead-of-winter training load lighter. Training plan: Nike Run Club 14-week Half Marathon Training Program (5 runs/week: 2 speed, 2 recovery, 1 long).</p>
+        <ul>
+          <li><strong class="key">Sept 2026&ndash;mid-Feb 2027:</strong> base rebuilding, 2 easy runs/week (lighter than a full 3, to leave room for the other goals running in parallel), no speed work yet. Use this window to find your Nike pace-chart row from a recent 5K/10K time or a few honest-effort runs.</li>
+          <li><strong class="key">Register for RBC Brooklyn Half:</strong> registration opens <strong class="key">early January 2027</strong> &mdash; set a reminder to register as soon as it opens.</li>
+          <li><strong class="key">Feb 14 &ndash; May 22, 2027 (14 weeks):</strong> the Nike plan itself &mdash; Speed Run &rarr; Recovery Run &rarr; Speed Run &rarr; Recovery Run &rarr; Long Run each week, escalating from intervals/hills early to tempo/fartlek later, long runs building from a 5K up to a 20K (12.5mi) at 4 weeks out, then a sharp taper &mdash; a 13.1K dress rehearsal at 5 weeks out, a shakeout 2-miler race week.</li>
+          <li><strong class="key">May 22, 2027:</strong> race day, target sub-2:00.</li>
+        </ul>
+      </div>
+      <div class="plan-item" id="plan-04">
+        <h4>04 &middot; Meal prep for a month</h4>
+        <p><strong class="key">Exact window: Sunday, Sept 13 &ndash; Sunday, Oct 18, 2026</strong> (6 weeks, with a 4-day buffer before New Orleans on Oct 22).</p>
+        <p><strong class="key">Exact schedule:</strong></p>
+        <table>
+          <tr><th>Week</th><th>Grocery</th><th>Prep</th></tr>
+          <tr><td>1</td><td colspan="2">Sun, Sept 13 &mdash; order online + prep same day</td></tr>
+          <tr><td>2</td><td>Sat, Sept 19</td><td>Sun, Sept 20</td></tr>
+          <tr><td>3</td><td>Sat, Sept 26</td><td>Sun, Sept 27</td></tr>
+          <tr><td>4</td><td colspan="2">Sat, Oct 4 &mdash; order online + prep same day</td></tr>
+          <tr><td>5</td><td>Sat, Oct 10</td><td>Sun, Oct 11</td></tr>
+          <tr><td>6</td><td>Sat, Oct 17</td><td>Sun, Oct 18</td></tr>
+        </table>
+        <p><strong class="key">Formula per week:</strong> 2&ndash;3 proteins (e.g. roasted chicken thighs, ground turkey, a bean-based option for variety), 2 starches (rice, roasted potatoes, or a grain like farro), and roasted or saut&eacute;ed vegetables in bulk &mdash; portioned into containers for lunches and dinners across the week. Rotate the protein/starch combos week to week to avoid the boredom that usually kills meal-prep streaks.</p>
+        <p><strong class="key">Success metric:</strong> this is really about consistency, not perfection &mdash; hitting 5 of 6 weeks with a real prep session counts as a win. A missed week doesn't reset the goal, just extends the window slightly.</p>
+      </div>
+      <div class="plan-item" id="plan-05">
+        <h4>05 &middot; Sleep routine, 1 month</h4>
+        <p><strong class="key">November 1&ndash;30, 2026</strong> &mdash; every day this month, with the exception of any flight days (none currently booked in November; if travel lands in this window, those travel days are the exception).</p>
+        <p><strong class="key">Target: phone away by 10:00pm, lights out by 10:30pm</strong>, for a full 8 hours before a consistent wake time (adjust these clock times if 10:30/6:30 isn&rsquo;t the right window).</p>
+        <p><strong class="key">Evening wind-down (roughly 9:30&ndash;10:30pm):</strong></p>
+        <ul>
+          <li>A/C turned on early enough that the room is already cold by bedtime &mdash; on a timer or switched on right after dinner, not right at 10:30</li>
+          <li>Push-ups and plank done earlier in the day, not inside the wind-down window &mdash; both are activating</li>
+          <li>Medication on a consistent daily schedule &mdash; same time every day, held as tightly as the sleep window itself</li>
+          <li>Phone away by 10:00pm &mdash; physically out of the bedroom, not just face-down on the nightstand</li>
+          <li>Hair mask and eye mask as the last physical steps before lights-out</li>
+        </ul>
+        <p><strong class="key">Sleep environment:</strong> room pre-cooled via the A/C, eye mask on, consistent wake time including weekends &mdash; the piece most routines skip, and the one that actually locks it in.</p>
+        <p><strong class="key">Also worth adding:</strong> an early-to-mid afternoon caffeine cutoff (caffeine's half-life means it's still partly active hours later), and optionally a sleep-tracking app or wearable to see whether the routine is actually producing more/better sleep.</p>
+        <p><strong class="key">Success metric:</strong> every day in November (flight days excepted), phone away by 10pm and lights out by 10:30pm.</p>
+      </div>
+      <div class="plan-item" id="plan-06">
+        <h4>06 &middot; Plank challenge</h4>
+        <p><strong class="key">September 14 &ndash; October 11, 2026</strong> (moved up so it finishes before New Orleans, no travel overlap). Habit-stacked onto teeth brushing, twice a day: <strong class="key">bodyweight squats for the duration of brushing (~2 minutes), immediately followed by one plank hold</strong> &mdash; morning and night.</p>
+        <ul>
+          <li><strong class="key">Week 1 (Sept 14&ndash;20):</strong> squats through brushing + 60 sec plank hold, AM and PM &mdash; form check: flat back, no hip sag, glutes engaged, shoulders down</li>
+          <li><strong class="key">Week 2 (Sept 21&ndash;27):</strong> squats through brushing + 75 sec plank hold, AM and PM</li>
+          <li><strong class="key">Week 3 (Sept 28&ndash;Oct 4):</strong> squats through brushing + 90&ndash;100 sec plank hold, AM and PM</li>
+          <li><strong class="key">Week 4 (Oct 5&ndash;11):</strong> squats through brushing + push toward a 2-minute+ single hold, AM and PM</li>
+        </ul>
+        <p>Tool: phone video or mirror to self-check squat and plank form occasionally; a structured app like &ldquo;Plank Workout&rdquo; if a gamified day-by-day plan helps.</p>
+      </div>
+      <div class="plan-item" id="plan-07">
+        <h4>07 &middot; 40 push-ups in a row</h4>
+        <p>Starting point: ~2 standard, ~15 on knees. Realistic timeline: <strong class="key">roughly 20 weeks, starting Saturday, Sept 12, 2026.</strong></p>
+        <ul>
+          <li><strong class="key">Phase 1, weeks 1&ndash;4 (Sept 12&ndash;Oct 9):</strong> build knee push-ups to 25&ndash;30/set; add incline push-ups 2x/week, 3 sets of 8&ndash;10</li>
+          <li><strong class="key">Phase 2, weeks 5&ndash;10 (Oct 10&ndash;Nov 20):</strong> standard push-ups in small sets of 3&ndash;5 reps, 5&ndash;6 sets per session; lower incline height every 2 weeks; target 8&ndash;10 in a single set by end of phase</li>
+          <li><strong class="key">Phase 3, weeks 11&ndash;16 (Nov 21&ndash;Jan 1):</strong> volume building toward 15&ndash;20 in a single set &mdash; runs parallel with the lifting program, which directly compounds chest/tricep/shoulder strength</li>
+          <li><strong class="key">Phase 4, weeks 17+ (Jan 2&ndash;Feb 2027, in Mexico):</strong> max-effort testing every 1&ndash;2 weeks, targeting 40 consecutive by end of February 2027</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BEAUTY DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-beauty">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 02 &middot; Items 08&ndash;13</div>
+      <h1><span>&#128132;</span> Beauty &amp; Self-care</h1>
+      <p class="teaser">The small rituals that make getting ready feel good.</p>
+      <div class="progress-line"><div class="bar"><i style="width:0%"></i></div><span>0 of 6 complete</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">08</span><span class="txt">Find a therapist I like</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Insurance-covered</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">09</span><span class="txt">Dial in a proper skincare routine</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">10</span><span class="txt">Get a laser facial</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">11</span><span class="txt">Get eyebrows microneedled</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">~$800</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">12</span><span class="txt">Get a proper bra fitting</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">13</span><span class="txt">Buy signature always-in earrings <span class="tag">Nov 27</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">~$500</span><span class="status open">Planned</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <div class="plan-item" id="plan-08">
+        <h4>08 &middot; Find a therapist I like</h4>
+        <p><strong class="key">Active search, Sept 9 &ndash; mid-October 2026.</strong> Hard requirement: some part of the cost has to be covered by health insurance &mdash; either in-network, or an out-of-network plan with reimbursement.</p>
+        <ul>
+          <li><strong class="key">Week 1 (Sept 9&ndash;15):</strong> Write down what you actually want out of therapy &mdash; specific enough to match against a provider's specialty. Log into your insurer's member portal and find the in-network behavioral health directory; separately confirm whether your plan reimburses out-of-network mental health visits and at what rate. Note whether teletherapy is covered &mdash; it widens the pool considerably.</li>
+          <li><strong class="key">Weeks 2&ndash;3 (Sept 16&ndash;29):</strong> Search psychologytoday.com and goodtherapy.org, filtered specifically by your insurance and the issues from Week 1. Build a shortlist of 4&ndash;5 candidates. Note credential type as you go &mdash; LCSW for practical/life-situation work, MFT for relationship-pattern work, PhD/PsyD if something more specialized (like ADHD-specific work) is relevant.</li>
+          <li><strong class="key">Week 4 (Sept 30&ndash;Oct 6):</strong> Request brief consultations (often free, ~15 min) with each shortlisted candidate. Ask about their experience with your specific issues, their approach, and expected timeline for seeing progress.</li>
+          <li><strong class="key">Week 5 (Oct 7&ndash;13):</strong> Pick one. Verify the insurance/reimbursement math actually works before the first paid session &mdash; confirm coverage directly with the provider's office, not just the directory listing.</li>
+          <li><strong class="key">Ongoing after that:</strong> Commit to a 3&ndash;5 session trial before deciding whether it's the right fit. If not, cycle back to the shortlist rather than starting the whole search over.</li>
+        </ul>
+      </div>
+      <div class="plan-item" id="plan-09">
+        <h4>09 &middot; Dial in a skincare routine</h4>
+        <p>The routine itself is locked in below &mdash; start practicing it now, with <strong class="key">December 2026 as the theme month</strong> to fully dial it in and make it automatic.</p>
+        <p><strong class="key">Morning:</strong></p>
+        <ul>
+          <li>Wash face</li>
+          <li>Exfoliate 2&ndash;3x a week</li>
+          <li>Apply vitamin C serum (e.g. Vichy LiftActiv Pure Vitamin C Serum)</li>
+          <li>Apply moisturizer</li>
+          <li>Apply sunscreen</li>
+        </ul>
+        <p><strong class="key">Evening:</strong></p>
+        <ul>
+          <li>Remove makeup</li>
+          <li>Wash face</li>
+          <li>Dry completely</li>
+          <li>Apply retinol 2&ndash;3x a week</li>
+          <li>Apply a hyaluronic acid serum</li>
+          <li>Apply moisturizer</li>
+        </ul>
+      </div>
+      <div class="plan-item">
+        <h4>10 &middot; Laser facial</h4>
+        <ul>
+          <li><strong class="key">Book by early Oct 2026</strong> &mdash; pre-birthday session</li>
+          <li><strong class="key">November 2026:</strong> UltraGlo with N4</li>
+          <li><strong class="key">February 2027:</strong> follow-up booking</li>
+          <li><strong class="key">Early June 2027:</strong> follow-up booking</li>
+        </ul>
+        <p>Roughly quarterly cadence &mdash; worth setting calendar reminders now for each booking window so they don't get missed.</p>
+      </div>
+      <div class="plan-item">
+        <h4>11 &middot; Eyebrow microneedling</h4>
+        <p>Holding off on NYC providers &mdash; researching options in <strong class="key">Spain or Mexico City</strong> to combine with upcoming travel. Decide once Mexico dates and the Europe trip itinerary are firmer.</p>
+      </div>
+      <div class="plan-item">
+        <h4>12 &middot; Proper bra fitting</h4>
+        <p>No real time constraint &mdash; anytime works. Good one to slot into a slower week.</p>
+      </div>
+      <div class="plan-item">
+        <h4>13 &middot; Signature always-in earrings</h4>
+        <p>Framing this as a self-gift for this year. <strong class="key">Target: shop around Black Friday 2026</strong> (Nov 27, 2026) for deals, after some earlier research/scouting so I'm ready to buy when sales hit rather than browsing cold that weekend.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BOOKS DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-books">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 03 &middot; Items 14&ndash;22</div>
+      <h1><span>&#128218;</span> Books, Film, Music</h1>
+      <p class="teaser">The stories, songs, and pages that are unmistakably mine.</p>
+      <div class="progress-line"><div class="bar"><i style="width:22%"></i></div><span>2 of 9 complete</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">14</span><span class="txt">Read a book in Spanish, ideally written originally in Spanish</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">15</span><span class="txt">Fill out bookshelves intentionally with books I love</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">16</span><span class="txt">Official favorite books list, reread top 10</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">17</span><span class="txt">Official favorite movies list, rewatch top 10</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">18</span><span class="txt">Official favorite albums list</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">19</span><span class="txt">Personal &ldquo;canon&rdquo; of 40 works that shaped me</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">20</span><span class="txt">Book signing &mdash; Priya Parker <span class="tag">Sept 9</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$30</span><span class="status booked">Booked</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">21</span><span class="txt">Front row show/musical &mdash; Kacey Musgraves @ MSG</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status done">Done</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">22</span><span class="txt">Read over 300 books in my 30s</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status ongoing">Ongoing</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <div class="plan-item">
+        <h4>14 &middot; Read a book in Spanish</h4>
+        <p><strong class="key">January 2027.</strong> A good post-holidays, deep-winter reading project.</p>
+      </div>
+      <div class="plan-item">
+        <h4>15 &middot; Fill out bookshelves intentionally</h4>
+        <p>Ongoing, sourced specifically from <strong class="key">thrift shops</strong> rather than buying new &mdash; a slow build, add a book whenever the right one turns up.</p>
+      </div>
+      <div class="plan-item" id="plan-16">
+        <h4>16&ndash;19 &middot; The four &ldquo;official lists&rdquo; (books, movies, albums, canon of 40)</h4>
+        <p>All four are ongoing and all need <strong class="key">active reminders</strong> rather than a deadline, since they're reflective projects that stall without a nudge. <strong class="key">Strict monthly rotation, first Sunday of every month, 20&ndash;30 minutes:</strong></p>
+        <table>
+          <tr><th>Month</th><th>Focus</th></tr>
+          <tr><td>Sept 2026</td><td>Official favorite books list</td></tr>
+          <tr><td>Oct 2026</td><td>Official favorite movies list</td></tr>
+          <tr><td>Nov 2026</td><td>Official favorite albums list</td></tr>
+          <tr><td>Dec 2026</td><td>Personal canon of 40</td></tr>
+          <tr><td>Jan 2027</td><td>Official favorite books list</td></tr>
+          <tr><td>Feb 2027</td><td>Official favorite movies list</td></tr>
+          <tr><td>Mar 2027</td><td>Official favorite albums list</td></tr>
+          <tr><td>Apr 2027</td><td>Personal canon of 40</td></tr>
+          <tr><td>May 2027</td><td>Official favorite books list</td></tr>
+          <tr><td>Jun 2027</td><td>Official favorite movies list</td></tr>
+          <tr><td>Jul 2027</td><td>Official favorite albums list</td></tr>
+          <tr><td>Aug 2027</td><td>Personal canon of 40</td></tr>
+          <tr><td>Sept 2027</td><td>Final wrap-up &mdash; review and finalize all four lists before the birthday</td></tr>
+        </table>
+        <p><strong class="key">Done criteria:</strong> books and movies lists are complete once the top 10 are ranked and reread/rewatched; the albums list is complete once compiled and listened through in full; the canon of 40 is complete once all 40 works are identified. A list can be finished ahead of its assigned month &mdash; the rotation just guarantees it gets touched at least three times before the birthday if it's still open.</p>
+      </div>
+      <div class="plan-item">
+        <h4>20 &middot; Priya Parker book signing</h4>
+        <p>Already booked &mdash; <strong class="key">Sept 9, 2026.</strong></p>
+      </div>
+      <div class="plan-item">
+        <h4>21 &middot; Kacey Musgraves at MSG, front row</h4>
+        <p>Done.</p>
+      </div>
+      <div class="plan-item" id="plan-22">
+        <h4>22 &middot; Read over 300 books in my 30s</h4>
+        <p><strong class="key">Already at 293.5 of 300</strong>, reading at a typical pace of 2&ndash;3 books/month &mdash; no plan needed. At that pace the remaining 6.5 books are done within 2&ndash;3 months, well ahead of the October 2027 birthday. Just keep reading as usual.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOD DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-food">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 04 &middot; Items 23&ndash;28</div>
+      <h1><span>&#127869;&#65039;</span> Food &amp; Cooking</h1>
+      <p class="teaser">Dishes worth mastering, a table worth setting.</p>
+      <div class="progress-line"><div class="bar"><i style="width:0%"></i></div><span>0 of 6 complete</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">23</span><span class="txt">Staten Island Ferry to Nonna's restaurant</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">24</span><span class="txt">Learn to make mapo tofu</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">25</span><span class="txt">Make my favorite chai, write the recipe</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">26</span><span class="txt">Learn signature dishes, no recipe needed</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">27</span><span class="txt">Host a dinner party of signature dishes</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">28</span><span class="txt">Make a signature cocktail</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <div class="plan-item">
+        <h4>23 &middot; Nonna's restaurant via Staten Island Ferry</h4>
+        <p><strong class="key">Target: October or November 2026.</strong> Needs booking very early &mdash; put the reservation call/booking on the calendar now so the date doesn't slip.</p>
+      </div>
+      <div class="plan-item">
+        <h4>24 &middot; Learn mapo tofu</h4>
+        <p><strong class="key">Fall 2026, with Raylene.</strong> A joint cooking session &mdash; good low-key fall hangout.</p>
+      </div>
+      <div class="plan-item">
+        <h4>25 &middot; Chai recipe</h4>
+        <p><strong class="key">Fall 2026.</strong> Pairs naturally with hosting &mdash; worth making this the drink I serve at a fall gathering once it's dialed in.</p>
+      </div>
+      <div class="plan-item" id="plan-26">
+        <h4>26 &middot; Signature dishes, no recipe needed</h4>
+        <p><strong class="key">Kicks off as part of the September 2026 cooking month</strong> &mdash; no dishes chosen yet, that's fine, just pick as you go and repeat whatever clicks.</p>
+        <p><strong class="key">Every Thursday in September (Sept 10, 17, 24):</strong> cook one dish that could become a signature, focused on technique rather than following a recipe closely. This uses the existing Thursday food/people slot in the weekly rhythm.</p>
+        <p>After September, the same recurring Thursday slot keeps giving it reps going forward &mdash; no separate monthly reminder needed, it's already part of the regular rhythm.</p>
+      </div>
+      <div class="plan-item">
+        <h4>27 &middot; Dinner party of signature dishes</h4>
+        <p><strong class="key">Early 2027</strong> &mdash; timed after signature dishes are actually locked in from item 26.</p>
+      </div>
+      <div class="plan-item">
+        <h4>28 &middot; Signature cocktail</h4>
+        <p><strong class="key">Winter, while hosting.</strong> Natural fit alongside the dinner party and any winter gatherings &mdash; develop it in the same window.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CREATIVE DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-creative">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 05 &middot; Items 29&ndash;33</div>
+      <h1><span>&#127912;</span> Creative &amp; Hobbies &amp; Play</h1>
+      <p class="teaser">Hands busy, mind loose &mdash; making things for the joy of it.</p>
+      <div class="progress-line"><div class="bar"><i style="width:0%"></i></div><span>0 of 5 complete</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">29</span><span class="txt">In-person speed puzzling competition</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$100</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">30</span><span class="txt">Sew a few more clothing items</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">$250</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">31</span><span class="txt">Make my own candle scent</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$200</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">32</span><span class="txt">Paint or stitch something to hang in my apartment</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$200</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">33</span><span class="txt">Replace old framed pictures/prints</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$200</span><span class="status ongoing">Ongoing</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <div class="plan-item">
+        <h4>29 &middot; In-person speed puzzling competition</h4>
+        <p><strong class="key">PANJ2026 (Philadelphia, Sept 26, 2026)</strong> was likely already sold out/full by the time this was checked. Noting it as a missed near-term option &mdash; more state championships and local USAJPA/Puzzle Club events come up regularly, so keep an eye on speedpuzzling.com and usajigsaw.org for the next one that fits the calendar.</p>
+      </div>
+      <div class="plan-item" id="plan-30">
+        <h4>30 &middot; Sew a few more clothing items</h4>
+        <p><strong class="key">Part of the monthly reflect / prep / reset day</strong> (first Sunday of every month, alongside the four-list rotation and writing that month's birthday cards): look at the month ahead and pick <strong class="key">4 sewing days at 2.5 hours each</strong> (10 hours total), then add each one to that week using the &ldquo;pull a goal into this week&rdquo; selector on the This Week screen so they're locked into the actual calendar rather than staying a vague intention.</p>
+      </div>
+      <div class="plan-item">
+        <h4>31 &middot; Own candle scent</h4>
+        <p>Anytime, but best suited to the <strong class="key">colder season</strong> (fall/winter) &mdash; a natural fit for a cozy indoor project.</p>
+      </div>
+      <div class="plan-item">
+        <h4>32 &middot; Paint or stitch something to hang</h4>
+        <p>Same as above &mdash; <strong class="key">colder season</strong> project, good for a slower weekend indoors.</p>
+      </div>
+      <div class="plan-item">
+        <h4>33 &middot; Replace old framed pictures/prints</h4>
+        <p>No real timing constraint &mdash; anytime works.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRAVEL DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-travel">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 06 &middot; Items 34&ndash;38</div>
+      <h1><span>&#129523;</span> Travel</h1>
+      <p class="teaser">New stamps, a month abroad, nights under open sky.</p>
+      <div class="progress-line"><div class="bar"><i style="width:20%"></i></div><span>1 of 5 complete</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">34</span><span class="txt">Visit 2 new countries to reach 35 total<span class="tag">Open decision</span></span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$1,000</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">35</span><span class="txt">Visit New Orleans <span class="tag">Oct 22&ndash;25</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$1,000</span><span class="status booked">Booked</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">36</span><span class="txt">Live in Mexico for a full month</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">$2,000</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">37</span><span class="txt">Sleep under the stars a few nights</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">38</span><span class="txt">Go to a drive-in movie</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <div class="plan-item">
+        <h4>34 &middot; 2 new countries to reach 35</h4>
+        <p><strong class="key">Spring/summer 2027.</strong> Specific destinations still open &mdash; will be decided as 2027 travel (likely the Copenhagen/Berlin/Prague/Budapest trip) firms up.</p>
+      </div>
+      <div class="plan-item">
+        <h4>35 &middot; New Orleans</h4>
+        <p>Booked &mdash; Oct 22&ndash;25, 2026.</p>
+      </div>
+      <div class="plan-item">
+        <h4>36 &middot; Live in Mexico for a month</h4>
+        <p><strong class="key">Q1 2027 (Jan/Feb/March)</strong> &mdash; exact month to be decided closer to the date.</p>
+      </div>
+      <div class="plan-item">
+        <h4>37 &middot; Sleep under the stars</h4>
+        <p><strong class="key">This fall, or next spring</strong> &mdash; whenever a camping trip can be worked in. No fixed date yet.</p>
+      </div>
+      <div class="plan-item">
+        <h4>38 &middot; Drive-in movie</h4>
+        <p><strong class="key">This fall 2026.</strong> Nearest options: Warwick Drive-In (Warwick, NY, ~1hr 10min) or Overlook Drive-In (Poughkeepsie, NY, ~1hr 30min) &mdash; both easy day/evening trips. Worth checking their season-end date so this doesn't get missed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NYC DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-nyc">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 07 &middot; Items 39&ndash;48</div>
+      <h1><span>&#128509;</span> Classic New York</h1>
+      <p class="teaser">Ten ways to fall for the city all over again.</p>
+      <div class="progress-line"><div class="bar"><i style="width:10%"></i></div><span>1 of 10 complete</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">39</span><span class="txt">Attend the US Open</span></div><div class="item-meta"><span class="status done">Done</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">40</span><span class="txt">Dim sum crawl, Chinatown</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$100</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">41</span><span class="txt">Walk Manhattan north to south in one go <span class="tag">Oct 7</span></span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">42</span><span class="txt">See jazz at Village Vanguard</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$100</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">43</span><span class="txt">Brooklyn Bridge walk at sunrise</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">44</span><span class="txt">Coney Island day</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$100</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">45</span><span class="txt">Ride the Roosevelt Island Tramway</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$5</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">46</span><span class="txt">Go to a club to dance at 4am <span class="tag">maybe Oct 7</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$50</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">47</span><span class="txt">Attend a Yankees game</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$50</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">48</span><span class="txt">Go to a taping of SNL or another late night show</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <div class="plan-item"><h4>39 &middot; US Open</h4><p>Done.</p></div>
+      <div class="plan-item"><h4>40 &middot; Dim sum crawl, Chinatown</h4><p><strong class="key">Spring 2027.</strong></p></div>
+      <div class="plan-item"><h4>41 &middot; Manhattan walk north to south</h4><p><strong class="key">My birthday</strong> &mdash; October 7, 2026. A fitting way to mark the day itself.</p></div>
+      <div class="plan-item"><h4>42 &middot; Jazz at Village Vanguard</h4><p><strong class="key">This winter (2026&ndash;27).</strong></p></div>
+      <div class="plan-item"><h4>43 &middot; Brooklyn Bridge sunrise walk</h4><p>No fixed date &mdash; anytime, likely <strong class="key">within the next couple of months.</strong></p></div>
+      <div class="plan-item"><h4>44 &middot; Coney Island day</h4><p><strong class="key">Spring 2027</strong>, timed with the start of baseball season.</p></div>
+      <div class="plan-item"><h4>45 &middot; Roosevelt Island Tramway</h4><p>Anytime &mdash; no plan needed, easy to slot in whenever.</p></div>
+      <div class="plan-item"><h4>46 &middot; Dance at a club until 4am</h4><p><strong class="key">Possibly on my birthday, October 7, 2026</strong>, or <strong class="key">spring 2027</strong> &mdash; open between the two.</p></div>
+      <div class="plan-item"><h4>47 &middot; Yankees game</h4><p><strong class="key">Spring 2027</strong>, once baseball season starts.</p></div>
+      <div class="plan-item"><h4>48 &middot; SNL or late-night taping</h4><p>Already entered the lottery &mdash; happening <strong class="key">whenever it comes through.</strong></p></div>
+    </div>
+  </section>
+
+  <!-- ============ RELATIONSHIPS DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-relationships">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 08 &middot; Items 49&ndash;50</div>
+      <h1><span>&#128140;</span> Relationships</h1>
+      <p class="teaser">Showing up, on paper and in person.</p>
+      <div class="progress-line"><div class="bar"><i style="width:0%"></i></div><span>0 of 2 complete</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">49</span><span class="txt">Send 50 cards or letters</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$300</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">50</span><span class="txt">Start a monthly supper club, kicking off with &ldquo;hot takes hot bites&rdquo;</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">$$</span><span class="status ongoing">Ongoing</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <div class="plan-item" id="plan-49">
+        <h4>49 &middot; 50 cards or letters</h4>
+        <p><strong class="key">The birthday list is locked in</strong> &mdash; 62 people (plus 7 friends' kids, 6 with birthdays still needed). Well over the 50 target, so this is really about pace, not scarcity.</p>
+        <p><strong class="key">Batched into the monthly reflect / prep / reset day</strong> (first Sunday of the month, alongside picking sewing days and the four-list rotation): write all of that month's birthday cards, letters, or texts in one sitting, pulled straight from the list below. Any Sunday after that in the month is just a catch-up buffer if one got missed. At roughly 4&ndash;5/month, 50 is very achievable well before the birthday. Keep a running tally.</p>
+        <p><strong class="key">The list:</strong></p>
+        <table>
+          <tr><th>Date</th><th>Name</th><th>Action</th><th>Have address?</th></tr>
+          <tr><td>Jan 1</td><td>Moshik Gueta</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Jan 7</td><td>Lois Lee (celebration)</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Jan 10</td><td>Colin Lloyd</td><td>Card</td><td>Yes</td></tr>
+          <tr><td>Jan 13</td><td>Jacqueline Hughes</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Jan 15</td><td>Belle Ekechukwu</td><td>Card</td><td>IRL</td></tr>
+          <tr><td>Jan 19</td><td>Julie Kerner</td><td>Card &amp; Gift</td><td>IRL</td></tr>
+          <tr><td>Jan 25</td><td>Brittany Burke</td><td>Card</td><td>Yes</td></tr>
+          <tr><td>Feb 12</td><td>Erika Schwartz</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Feb 18</td><td>Eleanor Dorfman</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Feb 26</td><td>Morgan Otway</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Mar 5</td><td>Nicole Wolfe</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Mar 5</td><td>Russell Korte</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Mar 8</td><td>Simran Kohli</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Mar 14</td><td>Gene (Lisha&rsquo;s son)</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Mar 18</td><td>Aunt Kathy</td><td>Card</td><td>Yes</td></tr>
+          <tr><td>Mar 19</td><td>Rachel Sylla</td><td>Card &amp; Gift</td><td>Yes</td></tr>
+          <tr><td>Mar 26</td><td>Alexia Paredes</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Mar 26</td><td>Dad</td><td>Card</td><td>N/A</td></tr>
+          <tr><td>Mar 29</td><td>Melissa Buck</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Mar 30</td><td>Shane Peltzman</td><td>Card &amp; Gift</td><td>Yes</td></tr>
+          <tr><td>Apr 2</td><td>Caroline Dell</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Apr 3</td><td>Jules Jones</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Apr 4</td><td>Alex Geertz</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Apr 16</td><td>Peteris Liepins</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Apr 23</td><td>Blair Barrett</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Apr 24</td><td>Christine Borges</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>May 3</td><td>Alli Foroobar</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>May 4</td><td>Laura Villarreal</td><td>Card &amp; Gift (if idea)</td><td>Unknown</td></tr>
+          <tr><td>May 7</td><td>Ruthie Reisner</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>May 25</td><td>Heather Prime</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>May 25</td><td>Cailee Moberg</td><td>Card &amp; Gift (if idea)</td><td>Unknown</td></tr>
+          <tr><td>May 27</td><td>Shae Varholak</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Jun 13</td><td>Ava Alemazkoor</td><td>Card &amp; Gift</td><td>Unknown</td></tr>
+          <tr><td>Jun 22</td><td>Popa Jose Lopez-Sanchez</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Jul 10</td><td>Haemee Kang</td><td>Card &amp; Gift</td><td>Yes</td></tr>
+          <tr><td>Jul 10</td><td>Lisha Yates</td><td>Card &amp; Gift</td><td>Yes</td></tr>
+          <tr><td>Jul 10</td><td>Jackie Hehir</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Jul 18</td><td>Alicia Rabadan</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Jul 23</td><td>Kerrie Sample</td><td>Card &amp; Gift</td><td>Yes</td></tr>
+          <tr><td>Jul 26</td><td>Ben Metcalfe</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Aug 2</td><td>Theon Johnson</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Aug 3</td><td>Richie Slocum</td><td>Card</td><td>Yes</td></tr>
+          <tr><td>Aug 4</td><td>Aly Kane</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Aug 13</td><td>Amelia Eanes</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Aug 20</td><td>Jess Hyman</td><td>Card &amp; Gift (if idea)</td><td>N/A</td></tr>
+          <tr><td>Aug 23</td><td>Mili Dutta</td><td>Card &amp; Gift</td><td>Unknown</td></tr>
+          <tr><td>Aug 27</td><td>Anisha Chopra</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Aug 29</td><td>Zava Slocum</td><td>Card &amp; Gift</td><td>Yes</td></tr>
+          <tr><td>Sep 6</td><td>Lindsey Blackwell</td><td>Text</td><td>N/A</td></tr>
+          <tr><td>Sep 17</td><td>Rachael Todd</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Sep 25</td><td>Katie Wood</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Sep 26</td><td>Katie Peabody</td><td>Card &amp; Gift</td><td>Yes</td></tr>
+          <tr><td>Oct 30</td><td>Raylene Yung</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Oct 31</td><td>Justin Kang</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Nov 12</td><td>Melanie Kahn</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Nov 17</td><td>Jeff Todd</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Dec 8</td><td>Ali Pisano</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Dec 10</td><td>Allie Bienenstock</td><td>Card</td><td>Unknown</td></tr>
+          <tr><td>Dec 16</td><td>Ashley Bangan</td><td>Card &amp; Gift</td><td>Yes</td></tr>
+          <tr><td>Dec 28</td><td>Mom</td><td>Gift</td><td>Yes</td></tr>
+        </table>
+        <p><strong class="key">Birthdays still needed</strong> before these can be scheduled: Leena &amp; Riian (Mili&rsquo;s kids), Hugo (Sylla&rsquo;s son), Gus &amp; Lachey (Jess&rsquo;s sons), Emerson (Cailee&rsquo;s son), Lennie (Katie&rsquo;s daughter). Worth asking their parents next time it comes up naturally.</p>
+      </div>
+      <div class="plan-item" id="plan-50">
+        <h4>50 &middot; Monthly supper club</h4>
+        <p><strong class="key">September 2026 &ndash; April 2027, every month you're in town.</strong> Kicks off with the &ldquo;hot takes hot bites&rdquo; theme in September. Skip whichever single month lands on the Mexico stay (exact month still TBD on item 36) &mdash; once that's locked in, this list updates to skip it automatically.</p>
+        <p><strong class="key">Planning happens on the monthly reflect / prep / reset day</strong> (first Sunday), alongside the list rotation, sewing days, and birthday cards: pick that month's date and theme, and send the invite. The dinner itself happens later in the month, whenever works.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CAREER DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-career">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 09 &middot; Items 51&ndash;57</div>
+      <h1><span>&#128188;</span> Career / Money</h1>
+      <p class="teaser">Clean numbers, a clear plan, work that pays twice.</p>
+      <div class="progress-line"><div class="bar"><i style="width:0%"></i></div><span>0 of 7 complete</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">51</span><span class="txt">Earn money doing learning/education consulting outside my 9-5</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">Free</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">52</span><span class="txt">Find a financial planner</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free–$$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">53</span><span class="txt">Create retirement goals, combine 401ks</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">54</span><span class="txt">Update jessicaslocum.com with 3 pieces of writing</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">55</span><span class="txt">Build a personal budget I stick to</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">56</span><span class="txt">Full financial declutter</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">57</span><span class="txt">Set a target net worth / savings goal for 50</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <p class="plan-lead">This section has the most moving parts, so it's sequenced rather than a flat list &mdash; do these roughly in order.</p>
+      <div class="plan-item" id="plan-56">
+        <h4>Step 1 (now, ongoing ~1 month) &middot; 401k consolidation + financial declutter</h4>
+        <p>These run together, starting <strong class="key">now</strong>. Realistic estimate: <strong class="key">~20 hours total</strong> &mdash; tracking down old accounts, making the consolidation calls, and going through old accounts/subscriptions/autopays. This is foundational: everything else in this section is easier once the numbers are clean.</p>
+      </div>
+      <div class="plan-item" id="plan-52">
+        <h4>Step 2 &middot; Find a financial planner</h4>
+        <p><strong class="key">Target: advisor locked in by end of 2026 (Dec 31).</strong> Runs <strong class="key">after</strong> the 401k/declutter work is far enough along that there's something clean to bring to the conversation. Finding candidates by <strong class="key">asking around</strong> rather than a directory search &mdash; <strong class="key">first up: Mom's financial advisor.</strong> Plan to <strong class="key">speak with 3&ndash;4 planners</strong> total before choosing one (ask other friends/family who they use for the rest of the list) &mdash; treat these like interviews, not commitments.</p>
+      </div>
+      <div class="plan-item" id="plan-55">
+        <h4>Step 3 &middot; Personal budget, net worth/savings goal for 50, retirement goals</h4>
+        <p><strong class="key">Starting January 2027</strong>, once the advisor is locked in. All three flow out of that relationship &mdash; no need to solve these solo.</p>
+      </div>
+      <div class="plan-item" id="plan-51">
+        <h4>Running in parallel &middot; Consulting business development</h4>
+        <p><strong class="key">Minimum 4 hours/month</strong>, ongoing with no end date until the first consulting client lands. All hours are outreach-focused &mdash; reaching out to specific people and companies you could pitch yourself to, not passive networking or admin.</p>
+        <p><strong class="key">Monthly reset day (first Sunday):</strong> research and shortlist 3&ndash;5 people or companies to reach out to that month &mdash; deciding the &ldquo;who&rdquo; in advance so outreach doesn't stall on indecision.</p>
+        <p><strong class="key">Reach-out happens on a separate day</strong> (Mondays, per the weekly rhythm) &mdash; actually sending the messages/emails to that month's shortlist, and logging the contact + hours below.</p>
+        <p><strong class="key">Outreach log:</strong></p>
+        <table>
+          <tr><th>Month</th><th>Contacts reached out to</th><th>Hours logged</th></tr>
+          <tr><td>Sept 2026</td><td>Kate (EO), Heather Hartnett, Caroline Dell</td><td>In progress</td></tr>
+        </table>
+        <p>Update this table each month as outreach happens, and keep a running tally of hours to confirm the 4-hour minimum is being hit.</p>
+      </div>
+      <div class="plan-item" id="plan-54">
+        <h4>Running in parallel &middot; Website, 3 pieces of writing</h4>
+        <p>The easiest item in this section. <strong class="key">1 piece per month for October, November, and December 2026</strong> &mdash; done by end of year. Now part of the monthly reflect / prep / reset day (first Sunday) for those three months, alongside the rest of the monthly checklist.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEGACY DETAIL ============ -->
+  <section class="screen cat-screen" id="cat-legacy">
+    <div class="cat-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Category 10 &middot; Items 58&ndash;64</div>
+      <h1><span>&#128368;</span> Legacy / Reflection</h1>
+      <p class="teaser">What gets written down, backed up, and remembered.</p>
+      <div class="progress-line"><div class="bar"><i style="width:0%"></i></div><span>0 of 7 complete</span></div>
+    </div>
+
+    <ul class="item-list">
+      <li class="item-row"><div class="item-main"><span class="idx">58</span><span class="txt">Write memoir chapters (consider a class)</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">Free–$$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">59</span><span class="txt">Write a letter to my 50-year-old self</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">60</span><span class="txt">Get grandmother's old interview off my computer, backed up</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">61</span><span class="txt">Professional boudoir photo shoot</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">62</span><span class="txt">Organize and back up my digital photos</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">63</span><span class="txt">Go to a psychic <span class="tag">maybe Oct 7</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">64</span><span class="txt">Record a video message to my future kids or myself</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">Free</span><span class="status open">Planned</span></div></li>
+    </ul>
+
+    <div class="section-label">The plan</div>
+    <div class="plan-content">
+      <div class="plan-item" id="plan-58">
+        <h4>58 &middot; Memoir chapters</h4>
+        <p>Ongoing, with the heaviest push planned for <strong class="key">Q1 2027</strong>, when I'm traveling less and have more quiet time (likely during the Mexico stay).</p>
+      </div>
+      <div class="plan-item">
+        <h4>59 &middot; Letter to my 50-year-old self</h4>
+        <p><strong class="key">Q1 2027,</strong> alongside the memoir work.</p>
+      </div>
+      <div class="plan-item">
+        <h4>60 &middot; Save grandmother's old interview</h4>
+        <p><strong class="key">Soon &mdash; a near-term priority.</strong> Time-sensitive since it's sitting on a computer that could fail; treat this as a this-month task, not a someday one.</p>
+      </div>
+      <div class="plan-item">
+        <h4>61 &middot; Boudoir photo shoot</h4>
+        <p><strong class="key">Closer to my birthday,</strong> or whenever I'm feeling most physically in shape &mdash; likely ties nicely to progress from the Fitness &amp; Body goals (lifting, push-ups, half marathon training).</p>
+      </div>
+      <div class="plan-item" id="plan-62">
+        <h4>62 &middot; Organize and back up digital photos</h4>
+        <p><strong class="key">Soon &mdash; a near-term priority,</strong> same urgency as the grandmother interview. Good to bundle these two together into one focused weekend.</p>
+      </div>
+      <div class="plan-item">
+        <h4>63 &middot; Go to a psychic</h4>
+        <p>Anytime &mdash; <strong class="key">possibly on my birthday</strong> itself, October 7, 2026. Provider: <a href="https://www.glowandhealco.com/offerings" target="_blank" rel="noopener">Glow &amp; Heal Co.</a> (Olivia &ldquo;Liv&rdquo; McAlpine).</p>
+      </div>
+      <div class="plan-item">
+        <h4>64 &middot; Video message to future kids or myself</h4>
+        <p><strong class="key">Closer to turning 40</strong> &mdash; a fitting way to close out the year.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WEEKLY ============ -->
+  <section class="screen" id="weekly">
+    <div class="cal-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Seven days, checked off as you go</div>
+      <h1>This week</h1>
+      <p>Every day&rsquo;s rhythm in one list &mdash; the recurring goals, plus anything date-specific landing this week, with real numbers wherever there&rsquo;s a number to give. Check things off, push what didn&rsquo;t happen to next week, or pull something forward.</p>
+    </div>
+
+    <div class="week-nav">
+      <button class="week-nav-btn" id="week-prev" aria-label="Previous week">&larr;</button>
+      <div class="week-nav-label">
+        <span class="week-range mono" id="week-range"></span>
+        <button class="week-jump" id="week-jump" hidden>Jump to current week</button>
+        <span class="week-tag" id="week-tag"></span>
+      </div>
+      <button class="week-nav-btn" id="week-next" aria-label="Next week">&rarr;</button>
+    </div>
+
+    <p class="sync-note" id="weekly-sync-note">&nbsp;</p>
+
+    <ul class="week-list" id="weekly-list"></ul>
+
+    <div class="add-row">
+      <select class="add-select" id="add-goal-select" aria-label="Pull a goal into this week">
+        <option value="">+ Pull a goal into this week&hellip;</option>
+      </select>
+      <button class="add-btn" id="add-goal-btn">Add to this week</button>
+    </div>
+
+    <p class="flex-note">The rhythm repeats every week (money &amp; admin, movement, beauty, creative hour, food &amp; people, a rotating wildcard, letters &amp; review), with anything date-specific &mdash; a booking, a trip, a phase like the plank challenge, push-up progression, or half-marathon training &mdash; layered in automatically when it&rsquo;s active. Want the bigger picture? <a href="#calendar" style="color:var(--gold); font-weight:600;">See the full month-by-month calendar &rarr;</a></p>
+  </section>
+
+  <!-- ============ CALENDAR ============ -->
+  <section class="screen" id="calendar">
+    <div class="cal-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">Sept 2026 &rarr; Oct 2027</div>
+      <h1>The road to 40</h1>
+      <p>Every goal from the ten categories, laid out month by month on the actual calendar between now and October 7, 2027.</p>
+    </div>
+
+    <div class="timeline">
+
+      <div class="cal-month">
+        <h4>September 2026</h4>
+        <div class="when">Right now</div>
+        <ul>
+          <li>Start consulting BD <strong>(4 hrs/month, ongoing)</strong></li>
+          <li>Start 401k consolidation + financial declutter <strong>(~20 hrs)</strong></li>
+          <li>Monthly supper club kickoff &mdash; &ldquo;hot takes hot bites&rdquo;</li>
+          <li>Start sending cards/letters <strong>(~4/month)</strong></li>
+          <li><strong>Priya Parker book signing, Sept 9</strong></li>
+          <li>Push-up progression Phase 1 begins, Sept 12</li>
+          <li>Plank challenge begins, Sept 14 &mdash; squats through brushing + plank, AM &amp; PM</li>
+          <li>Save grandmother's interview &mdash; priority</li>
+          <li>Organize/back up digital photos &mdash; priority</li>
+          <li>Book Nonna's restaurant (Oct/Nov date)</li>
+          <li>Book laser facial for early Oct</li>
+          <li>Therapist search begins &mdash; insurance directory check, then shortlist by end of month</li>
+          <li>Check drive-in movie season-end dates</li>
+        </ul>
+      </div>
+
+      <div class="cal-month">
+        <h4>October 2026</h4>
+        <div class="when">Month 2</div>
+        <ul>
+          <li>Meal prep window continues (Sept 13&ndash;Oct 18)</li>
+          <li>Plank challenge continues through Oct 11 (squats + plank, AM &amp; PM)</li>
+          <li>Push-up progression continues</li>
+          <li><strong>My birthday, Oct 7:</strong> Manhattan walk N&ndash;S, psychic visit, possibly 4am dance club</li>
+          <li><strong>New Orleans trip, Oct 22&ndash;25</strong></li>
+          <li>Nonna's restaurant (if booked for Oct)</li>
+          <li>Mapo tofu with Raylene</li>
+          <li>Chai recipe</li>
+          <li>Laser facial pre-birthday booking</li>
+          <li>Therapist consultations (Sept 30&ndash;Oct 6), pick one and confirm coverage by Oct 13</li>
+          <li>Drive-in movie</li>
+          <li>1st website writing piece</li>
+        </ul>
+      </div>
+
+      <div class="cal-month">
+        <h4>November 2026</h4>
+        <div class="when">Month 3</div>
+        <ul>
+          <li>Sleep routine, full month</li>
+          <li>UltraGlo laser facial with N4</li>
+          <li><strong>Black Friday &mdash; buy signature earrings (Nov 27)</strong></li>
+          <li>Jazz at Village Vanguard window opens</li>
+          <li>2nd website writing piece</li>
+          <li>Push-up progression, Phase 2 continues</li>
+        </ul>
+      </div>
+
+      <div class="cal-month">
+        <h4>December 2026</h4>
+        <div class="when">Month 4</div>
+        <ul>
+          <li>Skincare routine &mdash; theme month</li>
+          <li>Finalize Mexico dates + sublet plan</li>
+          <li>Fix apartment AC before subletting</li>
+          <li>3rd website writing piece</li>
+          <li>Video message to future self/kids &mdash; New Year's option</li>
+        </ul>
+      </div>
+
+      <div class="cal-month">
+        <h4>Jan &ndash; Mar 2027</h4>
+        <div class="when">Months 5&ndash;7</div>
+        <ul>
+          <li><strong>Live in Mexico for a month</strong> (exact month TBD)</li>
+          <li>Read a book in Spanish (January)</li>
+          <li>Eyebrow microneedling research (Spain/Mexico City)</li>
+          <li>Laser facial follow-up (February)</li>
+          <li>Push-up Phase 4 &mdash; target 40 by end of Feb</li>
+          <li>Running gait/strength assessment follow-through</li>
+          <li><strong>Register for RBC Brooklyn Half Marathon</strong> as soon as registration opens, early January</li>
+          <li>Nike 14-week half marathon training plan begins, Feb 14</li>
+          <li>Memoir chapters + letter to 50-year-old self</li>
+          <li>Financial planner interviews (3&ndash;4)</li>
+        </ul>
+      </div>
+
+      <div class="cal-month">
+        <h4>Apr &ndash; May 2027</h4>
+        <div class="when">Months 8&ndash;9</div>
+        <ul>
+          <li>Nike 14-week half marathon plan in full swing &mdash; tapering into race week</li>
+          <li><strong>RBC Brooklyn Half Marathon, May 22 (preliminary)</strong> &mdash; target sub-2:00</li>
+          <li>Retirement goals + combine 401ks finalized</li>
+          <li>Personal budget + net worth goal set</li>
+          <li>Signature dishes + dinner party</li>
+          <li>Signature cocktail</li>
+          <li>Dim sum crawl, Chinatown</li>
+        </ul>
+      </div>
+
+      <div class="cal-month">
+        <h4>June 2027</h4>
+        <div class="when">Month 10</div>
+        <ul>
+          <li>Laser facial follow-up (early June)</li>
+          <li>Coney Island day (baseball season)</li>
+          <li>Yankees game</li>
+        </ul>
+      </div>
+
+      <div class="cal-month">
+        <h4>Summer 2027</h4>
+        <div class="when">Months 11&ndash;12</div>
+        <ul>
+          <li><strong>Copenhagen &rarr; Berlin &rarr; Prague &rarr; Budapest</strong> trip</li>
+          <li>2 new countries decided + visited (reach 35 total)</li>
+          <li>Sleep under the stars, if not done in fall 2026</li>
+          <li>Speed puzzling competition (next opportunity)</li>
+        </ul>
+      </div>
+
+      <div class="cal-month">
+        <h4>Sept &ndash; Oct 7, 2027</h4>
+        <div class="when">The final stretch</div>
+        <ul>
+          <li>Boudoir photo shoot, closer to turning 40</li>
+          <li>Video message to future self/kids</li>
+          <li>Final wrap-up of any remaining cards/letters</li>
+          <li>Final review of the 64</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <p class="flex-note">No fixed date, for whenever it fits: Roosevelt Island Tramway, the Brooklyn Bridge sunrise walk, the bra fitting, filling out the bookshelves from thrift shops, practicing signature dishes, 10 hours/month of sewing, and the SNL / late-night lottery. (The four &ldquo;official lists&rdquo; now run on a strict first-Sunday-of-the-month rotation.)</p>
+  </section>
+
+  <!-- ============ GANTT ============ -->
+  <section class="screen" id="gantt">
+    <div class="cal-hero">
+      <button class="back-btn" data-nav="home">&larr; Dashboard</button>
+      <div class="eyebrow">The next 13 months, all 64 goals</div>
+      <h1>Gantt view</h1>
+      <p>Every goal as a bar on one timeline, grouped by category. The month header stays put as you scroll down; goal names stay put as you scroll across.</p>
+    </div>
+
+    <div class="gantt-legend">
+      <span class="gantt-legend-item"><span class="gantt-swatch sw-planned"></span> Planned</span>
+      <span class="gantt-legend-item"><span class="gantt-swatch sw-booked"></span> Booked</span>
+      <span class="gantt-legend-item"><span class="gantt-swatch sw-done"></span> Done</span>
+      <span class="gantt-legend-item"><span class="gantt-swatch sw-ongoing"></span> Ongoing &mdash; no fixed date, runs the whole stretch</span>
+    </div>
+
+    <div class="gantt-outer">
+      <div class="gantt-scroll">
+        <div class="gantt-grid" id="gantt-grid"></div>
+      </div>
+    </div>
+
+    <p class="flex-note">Bars come from the same dates and statuses as the rest of the tracker &mdash; booked/exact dates are precise, planned items sit in their best-guess month from the plan, and ongoing goals (no fixed date) get the striped bar running the full width so they don&rsquo;t get lost. The gold line marks today.</p>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var screens = document.querySelectorAll('.screen');
+  var navButtons = document.querySelectorAll('[data-nav]');
+  var pendingAnchor = null;
+
+  function show(id){
+    if(!document.getElementById(id)) id = 'home';
+    screens.forEach(function(s){ s.classList.toggle('active', s.id === id); });
+    navButtons.forEach(function(b){
+      if(b.tagName === 'BUTTON' && b.closest('nav')){
+        b.classList.toggle('is-current', b.getAttribute('data-nav') === id);
+      }
+    });
+
+    if(pendingAnchor){
+      var anchorId = pendingAnchor;
+      pendingAnchor = null;
+      requestAnimationFrame(function(){
+        var target = document.getElementById(anchorId);
+        if(target){
+          target.scrollIntoView({behavior:'smooth', block:'center'});
+          target.classList.add('plan-flash');
+          setTimeout(function(){ target.classList.remove('plan-flash'); }, 1800);
+        } else {
+          window.scrollTo(0,0);
+        }
+      });
+    } else {
+      window.scrollTo(0,0);
+    }
+  }
+
+  function routeFromHash(){
+    var id = (location.hash || '#home').slice(1);
+    show(id);
+  }
+
+  window.addEventListener('hashchange', routeFromHash);
+
+  navButtons.forEach(function(el){
+    el.addEventListener('click', function(e){
+      e.preventDefault();
+      var id = el.getAttribute('data-nav');
+      pendingAnchor = el.getAttribute('data-anchor') || null;
+      if(('#' + id) === location.hash){ show(id); }
+      else { location.hash = id; }
+    });
+    if(el.getAttribute('role') === 'button'){
+      el.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); el.click(); }
+      });
+    }
+  });
+
+  routeFromHash();
+})();
+
+(function(){
+  var msDay = 86400000;
+  var start = new Date(2026, 8, 3);
+  var end = new Date(2027, 9, 7);
+  var now = new Date();
+
+  var totalDays = Math.round((end - start) / msDay);
+  var daysLeft = Math.max(0, Math.ceil((end - now) / msDay));
+  var elapsed = Math.min(totalDays, Math.max(0, totalDays - daysLeft));
+  var pct = totalDays > 0 ? Math.min(100, Math.max(0, (elapsed / totalDays) * 100)) : 0;
+
+  var d1 = document.getElementById('stat-days');
+  var d2 = document.getElementById('stat-days2');
+  var w = document.getElementById('stat-weeks');
+  if(d1) d1.textContent = daysLeft.toLocaleString();
+  if(d2) d2.textContent = daysLeft.toLocaleString();
+  if(w) w.textContent = Math.round(daysLeft / 7).toLocaleString();
+
+  var ring = document.getElementById('progress-ring');
+  if(ring){
+    var r = parseFloat(ring.getAttribute('r'));
+    var c = 2 * Math.PI * r;
+    ring.style.strokeDasharray = c;
+    ring.style.strokeDashoffset = c - (pct / 100) * c;
+  }
+
+})();
+
+(function(){
+  var listEl = document.getElementById('weekly-list');
+  if(!listEl) return;
+
+  var DAY_MS = 86400000;
+  var WEEK_MS = 7 * DAY_MS;
+  var rangeEl = document.getElementById('week-range');
+  var tagEl = document.getElementById('week-tag');
+  var jumpEl = document.getElementById('week-jump');
+  var syncEl = document.getElementById('weekly-sync-note');
+  var prevBtn = document.getElementById('week-prev');
+  var nextBtn = document.getElementById('week-next');
+  var addSelect = document.getElementById('add-goal-select');
+  var addBtn = document.getElementById('add-goal-btn');
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function iso(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+  function fmtShort(d){ return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }); }
+  function fmtDay(d){ return d.toLocaleDateString('en-US', { weekday:'short' }) + ' ' + d.toLocaleDateString('en-US', { month:'short', day:'numeric' }); }
+  function addDays(d, n){ return new Date(d.getTime() + n * DAY_MS); }
+  function inRange(d, startStr, endStr){
+    var s = new Date(startStr + 'T00:00:00');
+    var e = new Date(endStr + 'T23:59:59');
+    return d >= s && d <= e;
+  }
+  function clamp(n, lo, hi){ return Math.max(lo, Math.min(hi, n)); }
+  function daysBetween(a, b){ return Math.round((b - a) / DAY_MS); }
+
+  function mondayOf(d){
+    var wd = (d.getDay() + 6) % 7; // 0 = Monday
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() - wd);
+  }
+
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var thisMonday = mondayOf(today);
+  var currentMonday = thisMonday;
+
+  // ---------- Master goal list, for pulling any goal into a week ----------
+  var MASTER_GOALS = [
+    'Get a professional running gait / strength assessment',
+    'Lift a certain amount — deadlift goal, from a 118lb bodyweight',
+    'Run another half marathon, PR under 2 hours',
+    'Meal prep for a full month',
+    'Build and adhere to a sleep routine for a month',
+    'Plank challenge, aim for a specific time',
+    '40 push-ups in a row',
+    'Find a therapist I like',
+    'Dial in a proper skincare routine',
+    'Get a laser facial',
+    'Get eyebrows microneedled',
+    'Get a proper bra fitting',
+    'Buy signature always-in earrings',
+    'Read a book in Spanish, ideally written originally in Spanish',
+    'Fill out bookshelves intentionally with books I love',
+    'Official favorite books list, reread top 10',
+    'Official favorite movies list, rewatch top 10',
+    'Official favorite albums list',
+    'Personal “canon” of 40 works that shaped me',
+    'Book signing — Priya Parker',
+    'Front row show/musical — Kacey Musgraves @ MSG',
+    'Read over 300 books in my 30s',
+    'Staten Island Ferry to Nonna’s restaurant',
+    'Learn to make mapo tofu',
+    'Make my favorite chai, write the recipe',
+    'Learn signature dishes, no recipe needed',
+    'Host a dinner party of signature dishes',
+    'Make a signature cocktail',
+    'In-person speed puzzling competition',
+    'Sew a few more clothing items',
+    'Make my own candle scent',
+    'Paint or stitch something to hang in my apartment',
+    'Replace old framed pictures/prints',
+    'Visit 2 new countries to reach 35 total',
+    'Visit New Orleans',
+    'Live in Mexico for a full month',
+    'Sleep under the stars a few nights',
+    'Go to a drive-in movie',
+    'Attend the US Open',
+    'Dim sum crawl, Chinatown',
+    'Walk Manhattan north to south in one go',
+    'See jazz at Village Vanguard',
+    'Brooklyn Bridge walk at sunrise',
+    'Coney Island day',
+    'Ride the Roosevelt Island Tramway',
+    'Go to a club to dance at 4am',
+    'Attend a Yankees game',
+    'Go to a taping of SNL or another late night show',
+    'Send 50 cards or letters',
+    'Start a monthly supper club, kicking off with “hot takes hot bites”',
+    'Earn money doing learning/education consulting outside my 9-5',
+    'Find a financial planner',
+    'Create retirement goals, combine 401ks',
+    'Update jessicaslocum.com with 3 pieces of writing',
+    'Build a personal budget I stick to',
+    'Full financial declutter',
+    'Set a target net worth / savings goal for 50',
+    'Write memoir chapters (consider a class)',
+    'Write a letter to my 50-year-old self',
+    'Get grandmother’s old interview off my computer, backed up',
+    'Professional boudoir photo shoot',
+    'Organize and back up my digital photos',
+    'Go to a psychic',
+    'Record a video message to my future kids or myself'
+  ];
+  if(addSelect){
+    MASTER_GOALS.forEach(function(g, i){
+      var opt = document.createElement('option');
+      opt.value = String(i + 1).padStart(2,'0') + ' · ' + g;
+      opt.textContent = String(i + 1).padStart(2,'0') + ' · ' + g;
+      addSelect.appendChild(opt);
+    });
+  }
+
+  // ---------- Computed, date-driven specifics ----------
+  function pushupTarget(d){
+    var start = new Date('2026-09-12T00:00:00');
+    var end = new Date('2027-02-28T23:59:59');
+    if(d < start || d > end) return null;
+    var total = daysBetween(start, end);
+    var elapsed = daysBetween(start, d);
+    var pct = clamp(elapsed / total, 0, 1);
+    return Math.round(8 + pct * (40 - 8));
+  }
+  var PLANK_START = new Date('2026-09-14T00:00:00');
+  var PLANK_END = new Date('2026-10-11T23:59:59');
+  function plankSeconds(d){
+    if(d < PLANK_START || d > PLANK_END) return null;
+    var week = Math.min(3, Math.floor(daysBetween(PLANK_START, d) / 7));
+    var targets = [60, 75, 97, 120];
+    return { secs: targets[week], week: week + 1 };
+  }
+  function fmtMinSec(secs){
+    if(secs < 60) return secs + 's';
+    var m = Math.floor(secs / 60), s = secs % 60;
+    return m + 'm' + (s ? ' ' + s + 's' : '');
+  }
+  var HM_START = new Date('2027-02-14T00:00:00');
+  var HM_RACE = new Date('2027-05-22T00:00:00');
+  function longRunMiles(d){
+    if(d < HM_START || d > HM_RACE) return null;
+    var total = daysBetween(HM_START, HM_RACE);
+    var elapsed = daysBetween(HM_START, d);
+    var pct = clamp(elapsed / total, 0, 1);
+    return Math.round(3 + pct * (11 - 3));
+  }
+
+  var LIST_ROTATION = ['Official favorite books list', 'Official favorite movies list', 'Official favorite albums list', 'Personal canon of 40'];
+  function listFocusForMonth(d){
+    var monthsSinceStart = (d.getFullYear() - 2026) * 12 + (d.getMonth() - 8); // 0 = Sept 2026
+    if(monthsSinceStart < 0) return null;
+    if(monthsSinceStart >= 12) return 'Final wrap-up — review and finalize all four lists';
+    return LIST_ROTATION[monthsSinceStart % 4];
+  }
+
+  // ---------- Birthday card list (month, day, name, action) ----------
+  var BIRTHDAY_LIST = [
+    [1,1,'Moshik Gueta','Card'], [1,7,'Lois Lee (celebration)','Card'], [1,10,'Colin Lloyd','Card'],
+    [1,13,'Jacqueline Hughes','Card'], [1,15,'Belle Ekechukwu','Card'], [1,19,'Julie Kerner','Card & Gift'],
+    [1,25,'Brittany Burke','Card'], [2,12,'Erika Schwartz','Card'], [2,18,'Eleanor Dorfman','Card'],
+    [2,26,'Morgan Otway','Card'], [3,5,'Nicole Wolfe','Text'], [3,5,'Russell Korte','Text'],
+    [3,8,'Simran Kohli','Text'], [3,14,'Gene (Lisha’s son)','Card'], [3,18,'Aunt Kathy','Card'],
+    [3,19,'Rachel Sylla','Card & Gift'], [3,26,'Alexia Paredes','Card'], [3,26,'Dad','Card'],
+    [3,29,'Melissa Buck','Card'], [3,30,'Shane Peltzman','Card & Gift'], [4,2,'Caroline Dell','Text'],
+    [4,3,'Jules Jones','Card'], [4,4,'Alex Geertz','Card'], [4,16,'Peteris Liepins','Text'],
+    [4,23,'Blair Barrett','Card'], [4,24,'Christine Borges','Card'], [5,3,'Alli Foroobar','Card'],
+    [5,4,'Laura Villarreal','Card & Gift (if idea)'], [5,7,'Ruthie Reisner','Card'], [5,25,'Heather Prime','Card'],
+    [5,25,'Cailee Moberg','Card & Gift (if idea)'], [5,27,'Shae Varholak','Card'], [6,13,'Ava Alemazkoor','Card & Gift'],
+    [6,22,'Popa Jose Lopez-Sanchez','Card'], [7,10,'Haemee Kang','Card & Gift'], [7,10,'Lisha Yates','Card & Gift'],
+    [7,10,'Jackie Hehir','Text'], [7,18,'Alicia Rabadan','Card'], [7,23,'Kerrie Sample','Card & Gift'],
+    [7,26,'Ben Metcalfe','Text'], [8,2,'Theon Johnson','Text'], [8,3,'Richie Slocum','Card'],
+    [8,4,'Aly Kane','Text'], [8,13,'Amelia Eanes','Card'], [8,20,'Jess Hyman','Card & Gift (if idea)'],
+    [8,23,'Mili Dutta','Card & Gift'], [8,27,'Anisha Chopra','Card'], [8,29,'Zava Slocum','Card & Gift'],
+    [9,6,'Lindsey Blackwell','Text'], [9,17,'Rachael Todd','Card'], [9,25,'Katie Wood','Card'],
+    [9,26,'Katie Peabody','Card & Gift'], [10,30,'Raylene Yung','Card'], [10,31,'Justin Kang','Card'],
+    [11,12,'Melanie Kahn','Card'], [11,17,'Jeff Todd','Card'], [12,8,'Ali Pisano','Card'],
+    [12,10,'Allie Bienenstock','Card'], [12,16,'Ashley Bangan','Card & Gift'], [12,28,'Mom','Gift']
+  ];
+  function birthdaysInMonth(month){
+    return BIRTHDAY_LIST.filter(function(b){ return b[0] === month; }).sort(function(a,b){ return a[1]-b[1]; });
+  }
+
+  // Supper club: Sept 2026 – Apr 2027, every month in town. Update MEXICO_MONTH ('YYYY-MM')
+  // once item 36's Mexico month is locked in, to skip that month automatically.
+  var SUPPER_MONTHS = ['2026-09','2026-10','2026-11','2026-12','2027-01','2027-02','2027-03','2027-04'];
+  var MEXICO_MONTH = null;
+
+  // ---------- Recurring weekday rhythm (0 = Mon ... 6 = Sun) ----------
+  function rhythmForDay(d, mi){
+    var items = [];
+    switch(mi){
+      case 0:
+        items.push({ slug:'money-401k', text:'Financial declutter / 401k consolidation — chip away at the ~20-hour project (reconcile one account or roll one balance this session)' });
+        items.push({ slug:'money-bd', text:'Reach out to 1–2 people/companies from this month’s BD shortlist (log the contact + hours toward the 4-hour minimum)' });
+        break;
+      case 1: {
+        var lr1 = longRunMiles(d);
+        if(lr1 !== null){
+          items.push({ slug:'move-easyrun', text:'Easy run: ~3 miles, easy conversational pace (half-marathon base training)' });
+        } else {
+          items.push({ slug:'move-strength', text:'Strength session — work the deadlift progression from the 118lb-bodyweight baseline (add 5–10lb if last session felt solid)' });
+        }
+        break;
+      }
+      case 2:
+        items.push({ slug:'beauty-skincare', text:'Skincare touch-in — AM: cleanse, exfoliate (2&ndash;3x/wk), vitamin C serum, moisturizer, SPF · PM: remove makeup, cleanse, dry, retinol (2&ndash;3x/wk), hyaluronic acid serum, moisturizer' });
+        items.push({ slug:'beauty-bra', text:'Look into bra-fitting studios, if not booked yet' });
+        break;
+      case 3:
+        items.push({ slug:'creative-hour', text:'Creative hour — work the candle-scent blend, or start replacing a framed print (sewing has its own 4 dedicated days this month — see Sunday)' });
+        break;
+      case 4:
+        if(inRange(d, '2026-09-01', '2026-09-30')){
+          items.push({ slug:'food-people', text:'Cooking month: cook one dish that could become a signature — technique over recipe' });
+        } else {
+          items.push({ slug:'food-people', text:'Practice a signature dish for the dinner party' });
+        }
+        break;
+      case 5: {
+        var pool = [
+          'Ride the Roosevelt Island Tramway round-trip — go right before sunset for the skyline',
+          'Walk the Brooklyn Bridge at sunrise — aim to be on the bridge by first light',
+          'Check for tickets to a taping of SNL or another late-night show',
+          'Look into the next in-person speed puzzling competition and sign up',
+          'Check upcoming clear-sky windows to sleep under the stars'
+        ];
+        var weekIdx = Math.floor(daysBetween(new Date(2026,0,1), d) / 7);
+        items.push({ slug:'wildcard', text: pool[((weekIdx % pool.length) + pool.length) % pool.length] });
+        var lr2 = longRunMiles(d);
+        if(lr2 !== null){
+          items.push({ slug:'move-longrun', text:'Long run: ~' + lr2 + ' miles, target pace ~9:09/mi for the sub-2:00 half marathon goal' });
+        }
+        break;
+      }
+      case 6:
+        if(d.getDate() <= 7){
+          items.push({ slug:'reset-header', text:'Monthly reflect / prep / reset day' });
+          var focus = listFocusForMonth(d);
+          if(focus){
+            items.push({ slug:'letters-list', text: '20–30 min on "' + focus + '" — this month’s stop in the four-list rotation' });
+          }
+          items.push({ slug:'sewing-pick-days', text:'Pick this month’s 4 sewing days (2.5 hrs each) and pull them into their weeks using the goal selector below' });
+          items.push({ slug:'bd-prep', text:'BD prep: research and shortlist 3–5 people/companies to reach out to this month (the actual outreach happens Mondays)' });
+          var ymKey54 = d.getFullYear() + '-' + pad(d.getMonth() + 1);
+          if(['2026-10','2026-11','2026-12'].indexOf(ymKey54) !== -1){
+            items.push({ slug:'website-piece', text:'Draft and publish this month’s website piece (1 of 3 for jessicaslocum.com)' });
+          }
+          var monthBdays = birthdaysInMonth(d.getMonth() + 1);
+          if(monthBdays.length){
+            var names = monthBdays.map(function(b){ return b[2] + ' (' + b[3] + ')'; }).join(', ');
+            items.push({ slug:'monthly-cards', text: 'Write this month’s birthday cards/texts: ' + names });
+          } else {
+            items.push({ slug:'monthly-cards', text: 'No birthdays on the list this month — send a just-because card or letter instead, toward the 50 total' });
+          }
+          var supperYm = d.getFullYear() + '-' + pad(d.getMonth() + 1);
+          if(SUPPER_MONTHS.indexOf(supperYm) !== -1 && supperYm !== MEXICO_MONTH){
+            var supperTheme = (supperYm === '2026-09') ? ' — kickoff theme: "hot takes hot bites"' : '';
+            items.push({ slug:'supper-plan', text:'Pick this month’s supper club date and theme, send the invite' + supperTheme });
+          }
+        } else {
+          items.push({ slug:'letters-cards', text:'Catch up on any of this month’s birthday cards not yet sent' });
+        }
+        items.push({ slug:'letters-review', text:'Weekly review: glance at the countdown, check off what happened, pick next week’s one big focus' });
+        break;
+    }
+
+    // Daily / active-phase overlays
+    var pu = pushupTarget(d);
+    if(pu !== null && (mi === 1 || mi === 3 || mi === 5)){
+      items.push({ slug:'pushups', text:'Push-ups: 3 sets, today’s target ~' + pu + ' reps toward the full 40 in a row' });
+    }
+    var pl = plankSeconds(d);
+    if(pl !== null){
+      items.push({ slug:'plank-am', text:'Squats through morning teeth brushing + plank hold: ' + fmtMinSec(pl.secs) + ' (week ' + pl.week + ' of 4)' });
+      items.push({ slug:'plank-pm', text:'Squats through night teeth brushing + plank hold: ' + fmtMinSec(pl.secs) + ' (week ' + pl.week + ' of 4)' });
+    }
+    if(inRange(d, '2026-11-01', '2026-11-30')){
+      items.push({ slug:'sleep', text:'Sleep routine: A/C on early, push-ups/plank done for the day, medication on schedule, phone away by 10pm, hair + eye mask, lights out by 10:30pm, same wake time (skip on any flight day)' });
+    }
+    if(inRange(d, '2026-12-01', '2026-12-31')){
+      items.push({ slug:'skincare-theme', text:'Skincare theme month: stick to AM/PM routine — retinol night Tue/Thu/Sat' });
+    }
+    return items;
+  }
+
+  // ---------- Exact-dated highlight events ----------
+  var DATED_EVENTS = [
+    { date:'2026-09-09', text:'Priya Parker book signing' },
+    { date:'2026-09-15', text:'Running gait/strength assessment, 4:00pm' },
+    { date:'2026-10-07', text:'Birthday day-of: Manhattan walk N–S, psychic visit, maybe the 4am dance club' },
+    { date:'2026-10-22', text:'New Orleans trip begins' },
+    { date:'2026-10-23', text:'New Orleans trip' },
+    { date:'2026-10-24', text:'New Orleans trip' },
+    { date:'2026-10-25', text:'New Orleans trip ends' },
+    { date:'2026-09-13', text:'Meal prep week 1 of 6 — order groceries online + prep same day' },
+    { date:'2026-09-13', text:'Write down everyone you want to send a birthday card to — the full list, before writing any cards' },
+    { date:'2026-09-19', text:'Grocery run — meal prep tomorrow (week 2 of 6)' },
+    { date:'2026-09-20', text:'Meal prep, week 2 of 6' },
+    { date:'2026-09-26', text:'Grocery run — meal prep tomorrow (week 3 of 6)' },
+    { date:'2026-09-27', text:'Meal prep, week 3 of 6' },
+    { date:'2026-10-04', text:'Meal prep week 4 of 6 — order groceries online + prep same day' },
+    { date:'2026-10-10', text:'Grocery run — meal prep tomorrow (week 5 of 6)' },
+    { date:'2026-10-11', text:'Meal prep, week 5 of 6' },
+    { date:'2026-10-17', text:'Grocery run — meal prep tomorrow (week 6 of 6, final week)' },
+    { date:'2026-10-18', text:'Meal prep, week 6 of 6 (final week)' },
+    { date:'2026-11-27', text:'Black Friday — buy the signature earrings' },
+    { date:'2027-01-05', text:'Registration opens (est.) for RBC Brooklyn Half Marathon — register as soon as it opens' },
+    { date:'2027-02-14', text:'Nike 14-week half marathon training plan begins' },
+    { date:'2027-05-22', text:'RBC Brooklyn Half Marathon (date preliminary) — race day, target sub-2:00' },
+    { date:'2027-10-07', text:'The big one — my 40th birthday' }
+  ];
+
+  // ---------- Persisted state (db capability, localStorage fallback) ----------
+  var LOCAL_KEY = '40b40-weekly-state-v1';
+  var state = { checked:{}, deferred:{}, extras:{} };
+  var dbDoc = null;
+  var stateLoaded = false;
+
+  function loadLocal(){
+    try {
+      var raw = localStorage.getItem(LOCAL_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        state.checked = parsed.checked || {};
+        state.deferred = parsed.deferred || {};
+        state.extras = parsed.extras || {};
+      }
+    } catch(e){}
+  }
+  function saveLocal(){
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  function pruneOldState(){
+    var cutoff = iso(addDays(thisMonday, -56)); // keep ~8 weeks of history
+    Object.keys(state.extras).forEach(function(wk){
+      if(wk < cutoff) delete state.extras[wk];
+    });
+    Object.keys(state.checked).forEach(function(id){
+      var wk = id.split('|')[0];
+      if(wk.length === 10 && wk < cutoff) delete state.checked[id];
+    });
+    Object.keys(state.deferred).forEach(function(id){
+      var wk = id.split('|')[0];
+      if(wk.length === 10 && wk < cutoff) delete state.deferred[id];
+    });
+  }
+
+  function persist(){
+    pruneOldState();
+    if(dbDoc){
+      dbDoc.set(state).catch(function(){ saveLocal(); });
+    } else {
+      saveLocal();
+    }
+  }
+
+  function setSyncNote(text){
+    if(syncEl) syncEl.textContent = text;
+  }
+
+  (function initDb(){
+    if(!(window.claude && typeof window.claude.use === 'function')){
+      loadLocal();
+      stateLoaded = true;
+      setSyncNote('Saved on this device.');
+      render();
+      return;
+    }
+    window.claude.use('db').then(function(db){
+      if(!db){
+        loadLocal();
+        stateLoaded = true;
+        setSyncNote('Saved on this device.');
+        render();
+        return;
+      }
+      dbDoc = db.doc('state/weekly');
+      dbDoc.onSnapshot(function(snap){
+        if(snap.exists){
+          var d = snap.data();
+          state.checked = d.checked || {};
+          state.deferred = d.deferred || {};
+          state.extras = d.extras || {};
+        }
+        stateLoaded = true;
+        setSyncNote('Synced — checks and changes here follow you across devices.');
+        render();
+      }, function(){
+        loadLocal();
+        stateLoaded = true;
+        setSyncNote('Saved on this device.');
+        render();
+      });
+    }).catch(function(){
+      loadLocal();
+      stateLoaded = true;
+      setSyncNote('Saved on this device.');
+      render();
+    });
+  })();
+
+  // ---------- Build one week's full item list ----------
+  function buildWeek(monday){
+    var wk = iso(monday);
+    var rows = [];
+
+    for(var i = 0; i < 7; i++){
+      var d = addDays(monday, i);
+      var dIso = iso(d);
+      var dayItems = rhythmForDay(d, i);
+      dayItems.forEach(function(it){
+        var id = wk + '|' + dIso + '|' + it.slug;
+        if(state.deferred[id]) return; // pushed away from this week
+        var hl = null;
+        DATED_EVENTS.forEach(function(ev){ if(ev.date === dIso && ev.text === it.text) hl = true; });
+        rows.push({ id:id, dateIso:dIso, dayIndex:i, text:it.text, highlight:false, extra:false });
+      });
+      DATED_EVENTS.forEach(function(ev){
+        if(ev.date === dIso){
+          var evId = 'event|' + ev.date;
+          if(state.deferred[evId]) return;
+          rows.push({ id:evId, dateIso:dIso, dayIndex:i, text:ev.text, highlight:true, extra:false });
+        }
+      });
+    }
+
+    (state.extras[wk] || []).forEach(function(ex){
+      rows.push({ id:ex.id, dateIso:null, dayIndex:-1, text:ex.text, highlight:false, extra:true });
+    });
+
+    rows.sort(function(a,b){ return a.dayIndex - b.dayIndex; });
+    return rows;
+  }
+
+  function nextWeekKey(monday){ return iso(addDays(monday, 7)); }
+
+  function pushToNextWeek(row, monday){
+    state.deferred[row.id] = true;
+    var wk = nextWeekKey(monday);
+    if(!state.extras[wk]) state.extras[wk] = [];
+    state.extras[wk].push({ id: 'extra-' + Date.now() + '-' + Math.random().toString(36).slice(2,7), text: row.text });
+    persist();
+    render();
+  }
+
+  function removeExtra(row, monday){
+    var wk = iso(monday);
+    if(state.extras[wk]){
+      state.extras[wk] = state.extras[wk].filter(function(ex){ return ex.id !== row.id; });
+    }
+    delete state.checked[row.id];
+    persist();
+    render();
+  }
+
+  function toggleChecked(id, val){
+    state.checked[id] = val;
+    persist();
+  }
+
+  // ---------- Render ----------
+  function render(){
+    if(!stateLoaded) return;
+    var monday = currentMonday;
+    var rows = buildWeek(monday);
+
+    var lastDay = addDays(monday, 6);
+    if(rangeEl) rangeEl.textContent = fmtShort(monday) + ' → ' + fmtShort(lastDay);
+    var isCurrent = iso(monday) === iso(thisMonday);
+    if(tagEl) tagEl.textContent = isCurrent ? 'Current week' : (monday < thisMonday ? 'Past week' : 'Upcoming week');
+    if(jumpEl) jumpEl.hidden = isCurrent;
+
+    listEl.innerHTML = '';
+    var lastDayIndex = null;
+    rows.forEach(function(row){
+      var li = document.createElement('li');
+      li.className = 'week-item';
+      if(row.dayIndex !== lastDayIndex){ li.classList.add('day-start'); lastDayIndex = row.dayIndex; }
+      var d = row.dateIso ? new Date(row.dateIso + 'T00:00:00') : null;
+      if(d && iso(d) === iso(today)) li.classList.add('is-today-row');
+      var checked = !!state.checked[row.id];
+      if(checked) li.classList.add('is-done');
+
+      var label = document.createElement('label');
+      label.className = 'chk';
+      var input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = checked;
+      input.addEventListener('change', function(){
+        li.classList.toggle('is-done', input.checked);
+        toggleChecked(row.id, input.checked);
+      });
+      var box = document.createElement('span');
+      box.className = 'box';
+      label.appendChild(input);
+      label.appendChild(box);
+
+      var body = document.createElement('div');
+      body.className = 'wi-body';
+      var meta = document.createElement('div');
+      meta.className = 'wi-meta';
+      var daySpan = document.createElement('span');
+      daySpan.className = 'wi-day';
+      daySpan.textContent = d ? fmtDay(d) : 'This week';
+      meta.appendChild(daySpan);
+      if(row.highlight){
+        var tag = document.createElement('span');
+        tag.className = 'wi-tag';
+        tag.textContent = 'Dated';
+        meta.appendChild(tag);
+      }
+      if(row.extra){
+        var tag2 = document.createElement('span');
+        tag2.className = 'wi-tag';
+        tag2.textContent = 'Added';
+        meta.appendChild(tag2);
+      }
+      var textDiv = document.createElement('div');
+      textDiv.className = 'wi-text';
+      textDiv.innerHTML = row.text;
+      body.appendChild(meta);
+      body.appendChild(textDiv);
+
+      var actions = document.createElement('div');
+      actions.className = 'wi-actions';
+      var pushBtn = document.createElement('button');
+      pushBtn.className = 'wi-push';
+      pushBtn.textContent = 'Next week →';
+      pushBtn.addEventListener('click', function(){ pushToNextWeek(row, monday); });
+      actions.appendChild(pushBtn);
+      if(row.extra){
+        var rmBtn = document.createElement('button');
+        rmBtn.className = 'wi-remove';
+        rmBtn.setAttribute('aria-label', 'Remove');
+        rmBtn.textContent = '×';
+        rmBtn.addEventListener('click', function(){ removeExtra(row, monday); });
+        actions.appendChild(rmBtn);
+      }
+
+      li.appendChild(label);
+      li.appendChild(body);
+      li.appendChild(actions);
+      listEl.appendChild(li);
+    });
+
+    if(!rows.length){
+      var empty = document.createElement('li');
+      empty.className = 'week-item';
+      empty.innerHTML = '<div class="wi-body"><div class="wi-text" style="color:var(--ink-faint);">Nothing left this week — pull something forward below, or enjoy the clear week.</div></div>';
+      listEl.appendChild(empty);
+    }
+  }
+
+  prevBtn && prevBtn.addEventListener('click', function(){ currentMonday = addDays(currentMonday, -7); render(); });
+  nextBtn && nextBtn.addEventListener('click', function(){ currentMonday = addDays(currentMonday, 7); render(); });
+  jumpEl && jumpEl.addEventListener('click', function(){ currentMonday = thisMonday; render(); });
+  addBtn && addBtn.addEventListener('click', function(){
+    if(!addSelect || !addSelect.value) return;
+    var wk = iso(currentMonday);
+    if(!state.extras[wk]) state.extras[wk] = [];
+    state.extras[wk].push({ id: 'extra-' + Date.now() + '-' + Math.random().toString(36).slice(2,7), text: addSelect.value });
+    addSelect.value = '';
+    persist();
+    render();
+  });
+})();
+
+(function(){
+  var grid = document.getElementById('gantt-grid');
+  if(!grid) return;
+
+  var DAY_MS = 86400000;
+  var GANTT_ITEMS = [
+  {
+    "idx": "01",
+    "cat": "Fitness & Body",
+    "text": "Get a professional running gait / strength assessment",
+    "status": "booked",
+    "start": "2026-09-15",
+    "end": "2026-09-15"
+  },
+  {
+    "idx": "02",
+    "cat": "Fitness & Body",
+    "text": "Lift a certain amount — deadlift goal, from a 118lb bodyweight",
+    "status": "planned",
+    "start": "2026-09-01",
+    "end": "2027-02-28"
+  },
+  {
+    "idx": "03",
+    "cat": "Fitness & Body",
+    "text": "Run another half marathon, PR under 2 hours",
+    "status": "planned",
+    "start": "2027-02-14",
+    "end": "2027-05-22"
+  },
+  {
+    "idx": "04",
+    "cat": "Fitness & Body",
+    "text": "Meal prep for a full month",
+    "status": "planned",
+    "start": "2026-09-13",
+    "end": "2026-10-18"
+  },
+  {
+    "idx": "05",
+    "cat": "Fitness & Body",
+    "text": "Build and adhere to a sleep routine for a month",
+    "status": "planned",
+    "start": "2026-11-01",
+    "end": "2026-11-30"
+  },
+  {
+    "idx": "06",
+    "cat": "Fitness & Body",
+    "text": "Plank challenge, aim for a specific time",
+    "status": "planned",
+    "start": "2026-09-14",
+    "end": "2026-10-11"
+  },
+  {
+    "idx": "07",
+    "cat": "Fitness & Body",
+    "text": "40 push-ups in a row",
+    "status": "planned",
+    "start": "2026-09-12",
+    "end": "2027-02-28"
+  },
+  {
+    "idx": "08",
+    "cat": "Beauty & Self-care",
+    "text": "Find a therapist I like",
+    "status": "ongoing"
+  },
+  {
+    "idx": "09",
+    "cat": "Beauty & Self-care",
+    "text": "Dial in a proper skincare routine",
+    "status": "planned",
+    "start": "2026-12-01",
+    "end": "2026-12-31"
+  },
+  {
+    "idx": "10",
+    "cat": "Beauty & Self-care",
+    "text": "Get a laser facial",
+    "status": "planned",
+    "start": "2026-09-01",
+    "end": "2027-06-30"
+  },
+  {
+    "idx": "11",
+    "cat": "Beauty & Self-care",
+    "text": "Get eyebrows microneedled",
+    "status": "planned",
+    "start": "2027-01-01",
+    "end": "2027-03-31"
+  },
+  {
+    "idx": "12",
+    "cat": "Beauty & Self-care",
+    "text": "Get a proper bra fitting",
+    "status": "ongoing"
+  },
+  {
+    "idx": "13",
+    "cat": "Beauty & Self-care",
+    "text": "Buy signature always-in earrings",
+    "status": "planned",
+    "start": "2026-11-27",
+    "end": "2026-11-27"
+  },
+  {
+    "idx": "14",
+    "cat": "Books, Film, Music",
+    "text": "Read a book in Spanish, ideally written originally in Spanish",
+    "status": "planned",
+    "start": "2027-01-01",
+    "end": "2027-01-31"
+  },
+  {
+    "idx": "15",
+    "cat": "Books, Film, Music",
+    "text": "Fill out bookshelves intentionally with books I love",
+    "status": "ongoing"
+  },
+  {
+    "idx": "16",
+    "cat": "Books, Film, Music",
+    "text": "Official favorite books list, reread top 10",
+    "status": "ongoing"
+  },
+  {
+    "idx": "17",
+    "cat": "Books, Film, Music",
+    "text": "Official favorite movies list, rewatch top 10",
+    "status": "ongoing"
+  },
+  {
+    "idx": "18",
+    "cat": "Books, Film, Music",
+    "text": "Official favorite albums list",
+    "status": "ongoing"
+  },
+  {
+    "idx": "19",
+    "cat": "Books, Film, Music",
+    "text": "Personal “canon” of 40 works that shaped me",
+    "status": "ongoing"
+  },
+  {
+    "idx": "20",
+    "cat": "Books, Film, Music",
+    "text": "Book signing — Priya Parker",
+    "status": "booked",
+    "start": "2026-09-09",
+    "end": "2026-09-09"
+  },
+  {
+    "idx": "21",
+    "cat": "Books, Film, Music",
+    "text": "Front row show/musical — Kacey Musgraves @ MSG",
+    "status": "done"
+  },
+  {
+    "idx": "22",
+    "cat": "Books, Film, Music",
+    "text": "Read over 300 books in my 30s",
+    "status": "ongoing"
+  },
+  {
+    "idx": "23",
+    "cat": "Food",
+    "text": "Staten Island Ferry to Nonna’s restaurant",
+    "status": "planned",
+    "start": "2026-10-01",
+    "end": "2026-11-30"
+  },
+  {
+    "idx": "24",
+    "cat": "Food",
+    "text": "Learn to make mapo tofu",
+    "status": "planned",
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+  },
+  {
+    "idx": "25",
+    "cat": "Food",
+    "text": "Make my favorite chai, write the recipe",
+    "status": "planned",
+    "start": "2026-10-01",
+    "end": "2026-10-31"
+  },
+  {
+    "idx": "26",
+    "cat": "Food",
+    "text": "Learn signature dishes, no recipe needed",
+    "status": "ongoing"
+  },
+  {
+    "idx": "27",
+    "cat": "Food",
+    "text": "Host a dinner party of signature dishes",
+    "status": "planned",
+    "start": "2027-04-01",
+    "end": "2027-05-31"
+  },
+  {
+    "idx": "28",
+    "cat": "Food",
+    "text": "Make a signature cocktail",
+    "status": "planned",
+    "start": "2027-04-01",
+    "end": "2027-05-31"
+  },
+  {
+    "idx": "29",
+    "cat": "Creative",
+    "text": "In-person speed puzzling competition",
+    "status": "ongoing"
+  },
+  {
+    "idx": "30",
+    "cat": "Creative",
+    "text": "Sew a few more clothing items",
+    "status": "ongoing"
+  },
+  {
+    "idx": "31",
+    "cat": "Creative",
+    "text": "Make my own candle scent",
+    "status": "planned",
+    "start": "2026-12-01",
+    "end": "2027-01-31"
+  },
+  {
+    "idx": "32",
+    "cat": "Creative",
+    "text": "Paint or stitch something to hang in my apartment",
+    "status": "planned",
+    "start": "2027-01-01",
+    "end": "2027-02-28"
+  },
+  {
+    "idx": "33",
+    "cat": "Creative",
+    "text": "Replace old framed pictures/prints",
+    "status": "ongoing"
+  },
+  {
+    "idx": "34",
+    "cat": "Travel",
+    "text": "Visit 2 new countries to reach 35 total",
+    "status": "planned",
+    "start": "2027-07-01",
+    "end": "2027-08-31"
+  },
+  {
+    "idx": "35",
+    "cat": "Travel",
+    "text": "Visit New Orleans",
+    "status": "booked",
+    "start": "2026-10-22",
+    "end": "2026-10-25"
+  },
+  {
+    "idx": "36",
+    "cat": "Travel",
+    "text": "Live in Mexico for a full month",
+    "status": "planned",
+    "start": "2027-01-01",
+    "end": "2027-03-31"
+  },
+  {
+    "idx": "37",
+    "cat": "Travel",
+    "text": "Sleep under the stars a few nights",
+    "status": "ongoing"
+  },
+  {
+    "idx": "38",
+    "cat": "Travel",
+    "text": "Go to a drive-in movie",
+    "status": "planned",
+    "start": "2026-09-01",
+    "end": "2026-10-31"
+  },
+  {
+    "idx": "39",
+    "cat": "Classic New York",
+    "text": "Attend the US Open",
+    "status": "done"
+  },
+  {
+    "idx": "40",
+    "cat": "Classic New York",
+    "text": "Dim sum crawl, Chinatown",
+    "status": "planned",
+    "start": "2027-04-01",
+    "end": "2027-05-31"
+  },
+  {
+    "idx": "41",
+    "cat": "Classic New York",
+    "text": "Walk Manhattan north to south in one go",
+    "status": "planned",
+    "start": "2026-10-07",
+    "end": "2026-10-07"
+  },
+  {
+    "idx": "42",
+    "cat": "Classic New York",
+    "text": "See jazz at Village Vanguard",
+    "status": "planned",
+    "start": "2026-11-01",
+    "end": "2026-12-15"
+  },
+  {
+    "idx": "43",
+    "cat": "Classic New York",
+    "text": "Brooklyn Bridge walk at sunrise",
+    "status": "ongoing"
+  },
+  {
+    "idx": "44",
+    "cat": "Classic New York",
+    "text": "Coney Island day",
+    "status": "planned",
+    "start": "2027-06-01",
+    "end": "2027-06-30"
+  },
+  {
+    "idx": "45",
+    "cat": "Classic New York",
+    "text": "Ride the Roosevelt Island Tramway",
+    "status": "ongoing"
+  },
+  {
+    "idx": "46",
+    "cat": "Classic New York",
+    "text": "Go to a club to dance at 4am",
+    "status": "planned",
+    "start": "2026-10-07",
+    "end": "2026-10-07"
+  },
+  {
+    "idx": "47",
+    "cat": "Classic New York",
+    "text": "Attend a Yankees game",
+    "status": "planned",
+    "start": "2027-06-01",
+    "end": "2027-06-30"
+  },
+  {
+    "idx": "48",
+    "cat": "Classic New York",
+    "text": "Go to a taping of SNL or another late night show",
+    "status": "ongoing"
+  },
+  {
+    "idx": "49",
+    "cat": "Relationships",
+    "text": "Send 50 cards or letters",
+    "status": "ongoing"
+  },
+  {
+    "idx": "50",
+    "cat": "Relationships",
+    "text": "Start a monthly supper club, kicking off with “hot takes hot bites”",
+    "status": "ongoing"
+  },
+  {
+    "idx": "51",
+    "cat": "Career & Money",
+    "text": "Earn money doing learning/education consulting outside my 9-5",
+    "status": "ongoing"
+  },
+  {
+    "idx": "52",
+    "cat": "Career & Money",
+    "text": "Find a financial planner",
+    "status": "planned",
+    "start": "2026-09-01",
+    "end": "2026-12-31"
+  },
+  {
+    "idx": "53",
+    "cat": "Career & Money",
+    "text": "Create retirement goals, combine 401ks",
+    "status": "planned",
+    "start": "2027-01-01",
+    "end": "2027-02-28"
+  },
+  {
+    "idx": "54",
+    "cat": "Career & Money",
+    "text": "Update jessicaslocum.com with 3 pieces of writing",
+    "status": "planned",
+    "start": "2026-10-01",
+    "end": "2026-12-31"
+  },
+  {
+    "idx": "55",
+    "cat": "Career & Money",
+    "text": "Build a personal budget I stick to",
+    "status": "planned",
+    "start": "2027-01-01",
+    "end": "2027-02-28"
+  },
+  {
+    "idx": "56",
+    "cat": "Career & Money",
+    "text": "Full financial declutter",
+    "status": "planned",
+    "start": "2026-09-01",
+    "end": "2026-11-15"
+  },
+  {
+    "idx": "57",
+    "cat": "Career & Money",
+    "text": "Set a target net worth / savings goal for 50",
+    "status": "planned",
+    "start": "2027-01-01",
+    "end": "2027-02-28"
+  },
+  {
+    "idx": "58",
+    "cat": "Legacy",
+    "text": "Write memoir chapters (consider a class)",
+    "status": "planned",
+    "start": "2027-01-01",
+    "end": "2027-03-31"
+  },
+  {
+    "idx": "59",
+    "cat": "Legacy",
+    "text": "Write a letter to my 50-year-old self",
+    "status": "planned",
+    "start": "2027-01-01",
+    "end": "2027-03-31"
+  },
+  {
+    "idx": "60",
+    "cat": "Legacy",
+    "text": "Get grandmother’s old interview off my computer, backed up",
+    "status": "planned",
+    "start": "2026-09-01",
+    "end": "2026-09-30"
+  },
+  {
+    "idx": "61",
+    "cat": "Legacy",
+    "text": "Professional boudoir photo shoot",
+    "status": "planned",
+    "start": "2027-09-01",
+    "end": "2027-09-30"
+  },
+  {
+    "idx": "62",
+    "cat": "Legacy",
+    "text": "Organize and back up my digital photos",
+    "status": "planned",
+    "start": "2026-09-01",
+    "end": "2026-09-30"
+  },
+  {
+    "idx": "63",
+    "cat": "Legacy",
+    "text": "Go to a psychic",
+    "status": "planned",
+    "start": "2026-10-07",
+    "end": "2026-10-07"
+  },
+  {
+    "idx": "64",
+    "cat": "Legacy",
+    "text": "Record a video message to my future kids or myself",
+    "status": "planned",
+    "start": "2026-12-01",
+    "end": "2026-12-31"
+  }
+];
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function isoOf(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+  function parseISO(s){ var p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+  function addMonths(d, n){ return new Date(d.getFullYear(), d.getMonth()+n, 1); }
+  function daysBetween(a, b){ return (b - a) / DAY_MS; }
+
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var windowStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  var windowEnd = addMonths(windowStart, 13);
+  var totalDays = daysBetween(windowStart, windowEnd);
+
+  var MONTHS = [];
+  for(var m = 0; m < 13; m++){
+    var ms = addMonths(windowStart, m);
+    MONTHS.push(ms);
+  }
+
+  function pctLeft(d){ return (daysBetween(windowStart, d) / totalDays) * 100; }
+  function pctWidth(startD, endD){ return (daysBetween(startD, endD) / totalDays) * 100; }
+
+  var colTemplate = 'var(--label-w) repeat(' + MONTHS.length + ', var(--col-w))';
+  grid.style.gridTemplateColumns = colTemplate;
+
+  function el(tag, cls, html){
+    var e = document.createElement('div');
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  // ---- header row ----
+  grid.appendChild(el('div', 'gantt-corner', 'Goal'));
+  MONTHS.forEach(function(ms){
+    var isCurrent = ms.getFullYear() === today.getFullYear() && ms.getMonth() === today.getMonth();
+    var label = ms.toLocaleDateString('en-US', { month:'short', year:'2-digit' });
+    grid.appendChild(el('div', 'gantt-month-head' + (isCurrent ? ' is-current' : ''), label));
+  });
+
+  var currentCat = null;
+  GANTT_ITEMS.forEach(function(item){
+    if(item.cat !== currentCat){
+      currentCat = item.cat;
+      var catRow = el('div', 'gantt-cat-row', currentCat);
+      grid.appendChild(catRow);
+    }
+
+    var label = el('div', 'gantt-label', '<span class="idx">' + item.idx + '</span><span>' + item.text + '</span>');
+    grid.appendChild(label);
+
+    var track = el('div', 'gantt-track');
+    track.style.gridColumn = '2 / span ' + MONTHS.length;
+
+    var bar;
+    if(item.status === 'ongoing'){
+      bar = el('div', 'gantt-bar b-ongoing', 'Ongoing');
+      bar.style.left = '0%';
+      bar.style.width = '100%';
+    } else if(item.status === 'done'){
+      bar = el('div', 'gantt-bar b-done');
+      bar.style.left = '2px';
+      bar.title = item.text + ' — Done';
+    } else {
+      var s = parseISO(item.start);
+      var e = parseISO(item.end);
+      var isPoint = item.start === item.end;
+      var cls = 'gantt-bar ' + (item.status === 'booked' ? 'b-booked' : 'b-planned') + (isPoint ? ' b-point' : '');
+      bar = el('div', cls, isPoint ? '' : (s.toLocaleDateString('en-US',{month:'short',day:'numeric'})));
+      var left = pctLeft(s);
+      if(isPoint){
+        bar.style.left = 'calc(' + left + '% - 7px)';
+      } else {
+        var width = Math.max(pctWidth(s, new Date(e.getTime() + DAY_MS)), 2.2);
+        bar.style.left = left + '%';
+        bar.style.width = width + '%';
+      }
+      bar.title = item.text + ' — ' + (isPoint ? s.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : (s.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' \u2192 ' + e.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})));
+    }
+    track.appendChild(bar);
+    grid.appendChild(track);
+  });
+
+  // ---- today marker, spanning full grid height ----
+  if(today >= windowStart && today <= windowEnd){
+    var todayLine = document.createElement('div');
+    todayLine.className = 'gantt-today';
+    var frac = pctLeft(today) / 100;
+    todayLine.style.left = 'calc(var(--label-w) + var(--col-w) * ' + MONTHS.length + ' * ' + frac.toFixed(4) + ')';
+    grid.style.position = 'relative';
+    grid.appendChild(todayLine);
+  }
+})();
+
+</script>
