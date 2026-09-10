@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/reads", "destination": "https://reads-jmslos-projects.vercel.app/" },
+    { "source": "/reads/:path*", "destination": "https://reads-jmslos-projects.vercel.app/:path*" }
+  ]
+}
