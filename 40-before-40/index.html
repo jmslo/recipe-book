@@ -496,6 +496,15 @@
   .week-tag{font-size:.74rem; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase;}
 
   .week-list{list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:2px;}
+  .week-day-head{
+    padding:20px 6px 8px; margin-top:6px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.78rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-faint);
+    border-top:1px solid var(--line);
+  }
+  .week-day-head:first-child{border-top:none; margin-top:0; padding-top:6px;}
+  .week-day-head.is-today{color:var(--gold);}
   .week-item{
     display:flex; align-items:flex-start; gap:14px;
     padding:14px 6px; border-bottom:1px solid var(--line-soft);
@@ -529,14 +538,39 @@
   .wi-text{font-size:.94rem; line-height:1.45; color:var(--ink);}
   .week-item.is-done .wi-text{color:var(--ink-faint); text-decoration:line-through;}
   .week-item.is-done .wi-meta{opacity:.6;}
-  .wi-actions{display:flex; align-items:center; gap:6px; flex-shrink:0; margin-left:auto; padding-top:1px;}
-  .wi-push, .wi-remove{
+  .wi-hint{
+    margin-top:6px; padding-left:14px; position:relative;
+    font-size:.85rem; font-style:italic; color:var(--ink-faint); line-height:1.4;
+  }
+  .wi-hint::before{content:'•'; position:absolute; left:0; color:var(--gold); font-style:normal;}
+  .fb-head{font-family:'Bricolage Grotesque'; font-weight:700; font-size:1rem; color:var(--ink); margin-bottom:8px;}
+  .fb-total{font-family:'JetBrains Mono'; font-weight:600; font-size:.82rem; color:var(--ink-faint); margin-left:2px;}
+  .fb-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px;}
+  .fb-list li{font-size:.92rem; color:var(--ink-dim); padding-left:15px; position:relative;}
+  .fb-list li::before{content:'•'; position:absolute; left:0; color:var(--gold);}
+  .fb-time{color:var(--ink); font-weight:700; margin-right:2px;}
+  .wi-time{
+    flex-shrink:0; width:64px; text-align:right; font-size:.82rem; font-weight:700; color:var(--ink);
+    padding-top:3px; white-space:nowrap;
+  }
+  .week-item.is-done .wi-time{opacity:.6;}
+  .wi-actions{display:flex; align-items:center; gap:6px; flex-shrink:0; margin-left:8px; padding-top:1px;}
+  .wi-push, .wi-remove, .wi-cal{
     background:none; border:1px solid var(--line); color:var(--ink-faint);
     font-size:.72rem; font-weight:600; padding:5px 10px; border-radius:999px; cursor:pointer;
-    white-space:nowrap; transition:border-color .15s, color .15s;
+    white-space:nowrap; transition:border-color .15s, color .15s; text-decoration:none;
   }
-  .wi-push:hover, .wi-remove:hover{border-color:var(--gold); color:var(--ink);}
+  .wi-push:hover, .wi-remove:hover, .wi-cal:hover{border-color:var(--gold); color:var(--ink);}
   .wi-remove{padding:5px 9px;}
+  .wi-cal{border-color:var(--st-booked); color:var(--st-booked);}
+  .wi-cal:hover{border-color:var(--st-booked); color:var(--ink);}
+  .day-picker{display:flex; gap:3px;}
+  .day-picker-btn{
+    width:22px; height:22px; border-radius:6px; border:1px solid var(--line); background:var(--bg-soft);
+    color:var(--ink-faint); font-size:.68rem; font-weight:700; cursor:pointer; padding:0;
+    transition:border-color .15s, color .15s;
+  }
+  .day-picker-btn:hover{border-color:var(--gold); color:var(--gold);}
 
   .add-row{
     display:flex; gap:10px; flex-wrap:wrap; align-items:center;
@@ -584,6 +618,9 @@
     .cat-block-head{flex-direction:column;}
     :root{--col-w:60px; --label-w:170px;}
     .gantt-label{font-size:.72rem; padding:7px 10px;}
+    .week-item{flex-wrap:wrap;}
+    .wi-time{order:3; width:auto; margin-left:36px; text-align:left;}
+    .wi-actions{order:4; margin-left:36px;}
   }
 </style>
 
@@ -670,7 +707,7 @@
         <button class="plan-link" data-nav="cat-fitness">View the full plan &rarr;</button>
       </div>
       <ul class="item-list">
-        <li class="item-row"><div class="item-main"><span class="idx">01</span><span class="txt">Get a professional running gait / strength assessment</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$370</span><span class="status booked">Scheduled</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">01</span><span class="txt">Get a professional running gait / strength assessment</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$370</span><span class="status done">Done</span></div></li>
         <li class="item-row"><div class="item-main"><span class="idx">02</span><span class="txt">Lift a certain amount &mdash; deadlift goal, from a 118lb bodyweight</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">~$150/session</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-fitness" data-anchor="plan-02" title="Jump to the detailed plan">Plan</button></div></li>
         <li class="item-row"><div class="item-main"><span class="idx">03</span><span class="txt">Run another half marathon, PR under 2 hours</span></div><div class="item-meta"><span class="effort vhigh">Very High</span><span class="cost">~$150 entry</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-fitness" data-anchor="plan-03" title="Jump to the detailed plan">Plan</button></div></li>
         <li class="item-row"><div class="item-main"><span class="idx">04</span><span class="txt">Meal prep for a full month</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-fitness" data-anchor="plan-04" title="Jump to the detailed plan">Plan</button></div></li>
@@ -694,7 +731,7 @@
         <li class="item-row"><div class="item-main"><span class="idx">09</span><span class="txt">Dial in a proper skincare routine</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span><button class="plan-jump" data-nav="cat-beauty" data-anchor="plan-09" title="Jump to the detailed plan">Plan</button></div></li>
         <li class="item-row"><div class="item-main"><span class="idx">10</span><span class="txt">Get a laser facial</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$$</span><span class="status open">Planned</span></div></li>
         <li class="item-row"><div class="item-main"><span class="idx">11</span><span class="txt">Get eyebrows microneedled</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">~$800</span><span class="status open">Planned</span></div></li>
-        <li class="item-row"><div class="item-main"><span class="idx">12</span><span class="txt">Get a proper bra fitting</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status ongoing">Ongoing</span></div></li>
+        <li class="item-row"><div class="item-main"><span class="idx">12</span><span class="txt">Get a proper bra fitting <span class="tag">Oct 1&ndash;12</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
         <li class="item-row"><div class="item-main"><span class="idx">13</span><span class="txt">Buy signature always-in earrings <span class="tag">Nov 27</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">~$500</span><span class="status open">Planned</span></div></li>
       </ul>
     </div>
@@ -878,7 +915,7 @@
       <span class="arrow">Open Gantt &rarr;</span>
     </div>
 
-    <p class="flex-note">No fixed date yet, for whenever the moment is right: Roosevelt Island Tramway, the Brooklyn Bridge sunrise walk, the bra fitting, filling out the bookshelves from thrift shops, practicing signature dishes, sewing time, and the SNL / late-night lottery. (The four &ldquo;official lists&rdquo; now run on a strict first-Sunday-of-the-month rotation &mdash; see the weekly view.)</p>
+    <p class="flex-note">No fixed date yet, for whenever the moment is right: Roosevelt Island Tramway, the Brooklyn Bridge sunrise walk, filling out the bookshelves from thrift shops, practicing signature dishes, sewing time, and the SNL / late-night lottery. (The four &ldquo;official lists&rdquo; now run on a strict first-Sunday-of-the-month rotation &mdash; see the weekly view.)</p>
   </section>
 
   <!-- ============ FITNESS DETAIL ============ -->
@@ -888,11 +925,11 @@
       <div class="eyebrow">Category 01 &middot; Items 01&ndash;07</div>
       <h1><span>&#127939;&#65039;</span> Fitness &amp; Body</h1>
       <p class="teaser">Strength numbers, a faster half, a body that keeps up &mdash; fully planned, start to finish.</p>
-      <div class="progress-line"><div class="bar"><i style="width:14%"></i></div><span>1 of 7 already scheduled</span></div>
+      <div class="progress-line"><div class="bar"><i style="width:14%"></i></div><span>1 of 7 complete</span></div>
     </div>
 
     <ul class="item-list">
-      <li class="item-row"><div class="item-main"><span class="idx">01</span><span class="txt">Get a professional running gait / strength assessment</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$370</span><span class="status booked">Scheduled</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">01</span><span class="txt">Get a professional running gait / strength assessment</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$370</span><span class="status done">Done</span></div></li>
       <li class="item-row"><div class="item-main"><span class="idx">02</span><span class="txt">Lift a certain amount &mdash; deadlift goal, from a 118lb bodyweight</span></div><div class="item-meta"><span class="effort high">High</span><span class="cost">~$150/session</span><span class="status open">Planned</span></div></li>
       <li class="item-row"><div class="item-main"><span class="idx">03</span><span class="txt">Run another half marathon, PR under 2 hours</span></div><div class="item-meta"><span class="effort vhigh">Very High</span><span class="cost">~$150 entry</span><span class="status open">Planned</span></div></li>
       <li class="item-row"><div class="item-main"><span class="idx">04</span><span class="txt">Meal prep for a full month</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
@@ -904,8 +941,11 @@
     <div class="section-label">The plan</div>
     <div class="plan-content">
       <div class="plan-item">
-        <h4>01 &middot; Running gait / strength assessment</h4>
-        <p>Already scheduled. This is the foundation piece &mdash; results feed directly into both the lifting goal and the half marathon training plan.</p>
+        <h4>01 &middot; Running gait / strength assessment &mdash; done, Sept 15, 2026 (HSS)</h4>
+        <p><strong class="key">The good news:</strong> neutral knee tracking, appropriate hip extension at push-off, appropriate pronation, good big toe extension, and cadence already close to ideal (176 steps/min vs. a 180 target).</p>
+        <p><strong class="key">What to build:</strong> hip and eccentric quad strength, lower-body power, ankle mobility, hamstring/hip flexibility, and single-leg control.</p>
+        <p><strong class="key">What's driving the hip/knee pain:</strong> bilateral overstriding, a forefoot strike, decreased knee flexion at midstance, right-sided crossover, arm compensation, and excessive vertical bounce &mdash; together these raise impact and braking forces on the feet, calves, knees, hips, and trunk.</p>
+        <p><strong class="key">Before running resumes:</strong> HSS's own rule &mdash; pain-free at rest and with normal daily activity (walking, stairs, squatting), plus clearance from your doctor/PT. Their home program: strength 2&ndash;3x/week for hips, quads, glutes and core, foot/ankle strengthening 2&ndash;3x/week, for 9&ndash;12 weeks, plus gentle cadence cueing toward 180 steps/min (a metronome or a song at that tempo, 1&ndash;2 songs per run to start). The specific walk/jog return-to-run progression is folded into the half marathon plan below (item 03).</p>
       </div>
       <div class="plan-item" id="plan-02">
         <h4>02 &middot; Lift a certain amount</h4>
@@ -930,7 +970,25 @@
         <h4>03 &middot; Half marathon &mdash; 2:15 &rarr; sub-2:00</h4>
         <p>About a 1:09/mile improvement (10:18 &rarr; 9:09 per mile). <strong class="key">Race: RBC Brooklyn Half Marathon</strong>, preliminarily May 22, 2027 (confirm official date once registration opens) &mdash; chosen over the NYCRUNS Brooklyn Experience Half (Apr 25, 2027) to keep the dead-of-winter training load lighter. Training plan: Nike Run Club 14-week Half Marathon Training Program (5 runs/week: 2 speed, 2 recovery, 1 long).</p>
         <ul>
-          <li><strong class="key">Sept 2026&ndash;mid-Feb 2027:</strong> base rebuilding, 2 easy runs/week (lighter than a full 3, to leave room for the other goals running in parallel), no speed work yet. Use this window to find your Nike pace-chart row from a recent 5K/10K time or a few honest-effort runs.</li>
+          <li><strong class="key">First, the HSS return-to-run protocol</strong> (only once pain-free at rest and with normal daily activity, and cleared by your doctor/PT): 3 nonconsecutive run days/week, no speed work, soreness rules the pace &mdash; stop and repeat a level if sore during/after, advance only after 2 clean runs in a row.
+            <table>
+              <tr><th>Weeks</th><th>Session</th></tr>
+              <tr><td>1&ndash;2</td><td>3 sets: 1 min jog / 3 min walk</td></tr>
+              <tr><td>2&ndash;3</td><td>4 sets: 1 min jog / 3 min walk</td></tr>
+              <tr><td>3&ndash;4</td><td>5 sets: 1 min jog / 3 min walk</td></tr>
+              <tr><td>4&ndash;5</td><td>3 sets: 2 min jog / 3 min walk</td></tr>
+              <tr><td>5&ndash;6</td><td>4 sets: 2 min jog / 3 min walk</td></tr>
+              <tr><td>6&ndash;7</td><td>5 sets: 2 min jog / 3 min walk</td></tr>
+              <tr><td>7&ndash;8</td><td>3 sets: 3 min jog / 2 min walk</td></tr>
+              <tr><td>8&ndash;9</td><td>4 sets: 3 min jog / 2 min walk</td></tr>
+              <tr><td>9&ndash;10</td><td>5 sets: 3 min jog / 2 min walk</td></tr>
+              <tr><td>10&ndash;11</td><td>3 sets: jog 0.5 mi / walk 3 min</td></tr>
+              <tr><td>11&ndash;12</td><td>4 sets: jog 0.5 mi / walk 3 min</td></tr>
+              <tr><td>12&ndash;13</td><td>Jog 1 continuous mile</td></tr>
+            </table>
+            Alongside this: strength 2&ndash;3x/week (hips, quads, glutes, core) and foot/ankle work 2&ndash;3x/week per the HSS program, plus cadence cueing toward 180 steps/min. After the 1-mile jog, increase duration by no more than 15%/week, and loop back to HSS to reassess before pushing further.
+          </li>
+          <li><strong class="key">Roughly Dec 2026&ndash;mid-Feb 2027:</strong> once past the return-to-run protocol, settle into base rebuilding &mdash; 2 easy runs/week (lighter than a full 3, to leave room for the other goals running in parallel), still no speed work. Use this window to find your Nike pace-chart row from a recent 5K/10K time or a few honest-effort runs.</li>
           <li><strong class="key">Register for RBC Brooklyn Half:</strong> registration opens <strong class="key">early January 2027</strong> &mdash; set a reminder to register as soon as it opens.</li>
           <li><strong class="key">Feb 14 &ndash; May 22, 2027 (14 weeks):</strong> the Nike plan itself &mdash; Speed Run &rarr; Recovery Run &rarr; Speed Run &rarr; Recovery Run &rarr; Long Run each week, escalating from intervals/hills early to tempo/fartlek later, long runs building from a 5K up to a 20K (12.5mi) at 4 weeks out, then a sharp taper &mdash; a 13.1K dress rehearsal at 5 weeks out, a shakeout 2-miler race week.</li>
           <li><strong class="key">May 22, 2027:</strong> race day, target sub-2:00.</li>
@@ -974,8 +1032,8 @@
         <ul>
           <li><strong class="key">Week 1 (Sept 14&ndash;20):</strong> squats through brushing + 60 sec plank hold, AM and PM &mdash; form check: flat back, no hip sag, glutes engaged, shoulders down</li>
           <li><strong class="key">Week 2 (Sept 21&ndash;27):</strong> squats through brushing + 75 sec plank hold, AM and PM</li>
-          <li><strong class="key">Week 3 (Sept 28&ndash;Oct 4):</strong> squats through brushing + 90&ndash;100 sec plank hold, AM and PM</li>
-          <li><strong class="key">Week 4 (Oct 5&ndash;11):</strong> squats through brushing + push toward a 2-minute+ single hold, AM and PM</li>
+          <li><strong class="key">Week 3 (Sept 28&ndash;Oct 4):</strong> squats through brushing + 90 sec plank hold, AM and PM</li>
+          <li><strong class="key">Week 4 (Oct 5&ndash;11):</strong> squats through brushing + 2-minute plank hold, AM and PM</li>
         </ul>
         <p>Tool: phone video or mirror to self-check squat and plank form occasionally; a structured app like &ldquo;Plank Workout&rdquo; if a gamified day-by-day plan helps.</p>
       </div>
@@ -1007,7 +1065,7 @@
       <li class="item-row"><div class="item-main"><span class="idx">09</span><span class="txt">Dial in a proper skincare routine</span></div><div class="item-meta"><span class="effort med">Medium</span><span class="cost">$$</span><span class="status open">Planned</span></div></li>
       <li class="item-row"><div class="item-main"><span class="idx">10</span><span class="txt">Get a laser facial</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$$$</span><span class="status open">Planned</span></div></li>
       <li class="item-row"><div class="item-main"><span class="idx">11</span><span class="txt">Get eyebrows microneedled</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">~$800</span><span class="status open">Planned</span></div></li>
-      <li class="item-row"><div class="item-main"><span class="idx">12</span><span class="txt">Get a proper bra fitting</span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status ongoing">Ongoing</span></div></li>
+      <li class="item-row"><div class="item-main"><span class="idx">12</span><span class="txt">Get a proper bra fitting <span class="tag">Oct 1&ndash;12</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">$</span><span class="status open">Planned</span></div></li>
       <li class="item-row"><div class="item-main"><span class="idx">13</span><span class="txt">Buy signature always-in earrings <span class="tag">Nov 27</span></span></div><div class="item-meta"><span class="effort">Low</span><span class="cost">~$500</span><span class="status open">Planned</span></div></li>
     </ul>
 
@@ -1027,10 +1085,11 @@
       <div class="plan-item" id="plan-09">
         <h4>09 &middot; Dial in a skincare routine</h4>
         <p>The routine itself is locked in below &mdash; start practicing it now, with <strong class="key">December 2026 as the theme month</strong> to fully dial it in and make it automatic.</p>
+        <p><strong class="key">Exfoliate mornings: Monday &amp; Friday. Retinol nights: Tuesday, Thursday &amp; Saturday.</strong> Dermatologists (AAD; Dr. Whitney Bowe's &ldquo;skin cycling&rdquo; method; Dr. Dennis Gross) agree on the same core rules, which is why the days below never overlap: retinol is a night-only product, since it breaks down in sunlight and increases sun sensitivity &mdash; sunscreen the next morning is non-negotiable. Beginners should build up gradually (the AAD suggests starting every other night); Tue/Thu/Sat is already an every-other-day cadence, so no easing in needed if that's tolerated well. Exfoliating acids (AHA/BHA) and retinol should never go on in the same session &mdash; layering them raises the risk of redness, flaking, and a compromised skin barrier &mdash; so exfoliation is kept to two mornings that don't coincide with a retinol night, giving skin recovery time in between.</p>
         <p><strong class="key">Morning:</strong></p>
         <ul>
           <li>Wash face</li>
-          <li>Exfoliate 2&ndash;3x a week</li>
+          <li>Exfoliate &mdash; Mondays &amp; Fridays only</li>
           <li>Apply vitamin C serum (e.g. Vichy LiftActiv Pure Vitamin C Serum)</li>
           <li>Apply moisturizer</li>
           <li>Apply sunscreen</li>
@@ -1040,7 +1099,7 @@
           <li>Remove makeup</li>
           <li>Wash face</li>
           <li>Dry completely</li>
-          <li>Apply retinol 2&ndash;3x a week</li>
+          <li>Apply retinol &mdash; Tuesdays, Thursdays &amp; Saturdays only</li>
           <li>Apply a hyaluronic acid serum</li>
           <li>Apply moisturizer</li>
         </ul>
@@ -1060,8 +1119,8 @@
         <p>Holding off on NYC providers &mdash; researching options in <strong class="key">Spain or Mexico City</strong> to combine with upcoming travel. Decide once Mexico dates and the Europe trip itinerary are firmer.</p>
       </div>
       <div class="plan-item">
-        <h4>12 &middot; Proper bra fitting</h4>
-        <p>No real time constraint &mdash; anytime works. Good one to slot into a slower week.</p>
+        <h4>12 &middot; Proper bra fitting &mdash; Oct 1&ndash;12, 2026</h4>
+        <p><strong class="key">$20 off $50 at Victoria&rsquo;s Secret, good Oct 1&ndash;12</strong> &mdash; get the fitting done in that window so the coupon isn&rsquo;t wasted.</p>
       </div>
       <div class="plan-item">
         <h4>13 &middot; Signature always-in earrings</h4>
@@ -1433,6 +1492,7 @@
       <div class="plan-item" id="plan-56">
         <h4>Step 1 (now, ongoing ~1 month) &middot; 401k consolidation + financial declutter</h4>
         <p>These run together, starting <strong class="key">now</strong>. Realistic estimate: <strong class="key">~20 hours total</strong> &mdash; tracking down old accounts, making the consolidation calls, and going through old accounts/subscriptions/autopays. This is foundational: everything else in this section is easier once the numbers are clean.</p>
+        <p><strong class="key">First step, specifically:</strong> make a simple list of every old 401k/retirement account you've ever had &mdash; employer name, rough balance, and whether you still have login access. That's the whole task for the first sitting; it turns a vague 20-hour project into a concrete list you can start checking off one account at a time.</p>
       </div>
       <div class="plan-item" id="plan-52">
         <h4>Step 2 &middot; Find a financial planner</h4>
@@ -1535,7 +1595,7 @@
 
     <p class="sync-note" id="weekly-sync-note">&nbsp;</p>
 
-    <ul class="week-list" id="weekly-list"></ul>
+    <div class="week-list" id="weekly-list"></div>
 
     <div class="add-row">
       <select class="add-select" id="add-goal-select" aria-label="Pull a goal into this week">
@@ -1592,6 +1652,7 @@
           <li>Chai recipe</li>
           <li>Laser facial pre-birthday booking</li>
           <li>Therapist consultations (Sept 30&ndash;Oct 6), pick one and confirm coverage by Oct 13</li>
+          <li>Bra fitting (Oct 1&ndash;12, using the $20 off $50 Victoria's Secret offer)</li>
           <li>Drive-in movie</li>
           <li>1st website writing piece</li>
         </ul>
@@ -1687,7 +1748,7 @@
 
     </div>
 
-    <p class="flex-note">No fixed date, for whenever it fits: Roosevelt Island Tramway, the Brooklyn Bridge sunrise walk, the bra fitting, filling out the bookshelves from thrift shops, practicing signature dishes, 10 hours/month of sewing, and the SNL / late-night lottery. (The four &ldquo;official lists&rdquo; now run on a strict first-Sunday-of-the-month rotation.)</p>
+    <p class="flex-note">No fixed date, for whenever it fits: Roosevelt Island Tramway, the Brooklyn Bridge sunrise walk, filling out the bookshelves from thrift shops, practicing signature dishes, 10 hours/month of sewing, and the SNL / late-night lottery. (The four &ldquo;official lists&rdquo; now run on a strict first-Sunday-of-the-month rotation.)</p>
   </section>
 
   <!-- ============ GANTT ============ -->
@@ -1932,13 +1993,13 @@
   function plankSeconds(d){
     if(d < PLANK_START || d > PLANK_END) return null;
     var week = Math.min(3, Math.floor(daysBetween(PLANK_START, d) / 7));
-    var targets = [60, 75, 97, 120];
+    var targets = [60, 75, 90, 120];
     return { secs: targets[week], week: week + 1 };
   }
   function fmtMinSec(secs){
     if(secs < 60) return secs + 's';
     var m = Math.floor(secs / 60), s = secs % 60;
-    return m + 'm' + (s ? ' ' + s + 's' : '');
+    return m + ' min' + (s ? ' ' + s + 's' : '');
   }
   var HM_START = new Date('2027-02-14T00:00:00');
   var HM_RACE = new Date('2027-05-22T00:00:00');
@@ -1995,124 +2056,141 @@
     var items = [];
     switch(mi){
       case 0:
-        items.push({ slug:'money-401k', text:'Financial declutter / 401k consolidation — chip away at the ~20-hour project (reconcile one account or roll one balance this session)' });
-        items.push({ slug:'money-bd', text:'Reach out to 1–2 people/companies from this month’s BD shortlist (log the contact + hours toward the 4-hour minimum)' });
         break;
       case 1: {
         var lr1 = longRunMiles(d);
         if(lr1 !== null){
-          items.push({ slug:'move-easyrun', text:'Easy run: ~3 miles, easy conversational pace (half-marathon base training)' });
+          items.push({ slug:'move-easyrun', cat:'Fitness', time:'30 min', text:'Easy run: ~3 miles, easy conversational pace (half-marathon base training)' });
         } else {
-          items.push({ slug:'move-strength', text:'Strength session — work the deadlift progression from the 118lb-bodyweight baseline (add 5–10lb if last session felt solid)' });
+          items.push({ slug:'move-strength', cat:'Fitness', time:'40 min', text:'Strength session, focusing on deadlift progression (add 5–10lb if last session felt solid)' });
         }
         break;
       }
       case 2:
-        items.push({ slug:'beauty-skincare', text:'Skincare touch-in — AM: cleanse, exfoliate (2&ndash;3x/wk), vitamin C serum, moisturizer, SPF · PM: remove makeup, cleanse, dry, retinol (2&ndash;3x/wk), hyaluronic acid serum, moisturizer' });
-        items.push({ slug:'beauty-bra', text:'Look into bra-fitting studios, if not booked yet' });
+        items.push({ slug:'money-401k', cat:'Career', time:'30 min', text:'First step: list every old 401k/retirement account you’ve ever had — employer, rough balance, login access — so the ~20-hour declutter has a concrete starting checklist' });
+        items.push({ slug:'money-bd', cat:'Career', time:'20 min', text:'Reach out to 1–2 people/companies from this month’s BD shortlist (log the contact + hours toward the 4-hour minimum)' });
         break;
       case 3:
-        items.push({ slug:'creative-hour', text:'Creative hour — work the candle-scent blend, or start replacing a framed print (sewing has its own 4 dedicated days this month — see Sunday)' });
+        items.push({ slug:'creative-hour', cat:'Creative', time:'1 hr', text:'Creative hour — work the candle-scent blend, or start replacing a framed print (sewing days get pulled in separately — see below)' });
         break;
       case 4:
         if(inRange(d, '2026-09-01', '2026-09-30')){
-          items.push({ slug:'food-people', text:'Cooking month: cook one dish that could become a signature — technique over recipe' });
+          items.push({ slug:'food-people', cat:'Food', time:'45 min', text:'Cooking month: cook one dish that could become a signature — technique over recipe' });
         } else {
-          items.push({ slug:'food-people', text:'Practice a signature dish for the dinner party' });
+          items.push({ slug:'food-people', cat:'Food', time:'45 min', text:'Practice a signature dish for the dinner party' });
         }
         break;
       case 5: {
         var pool = [
-          'Ride the Roosevelt Island Tramway round-trip — go right before sunset for the skyline',
-          'Walk the Brooklyn Bridge at sunrise — aim to be on the bridge by first light',
-          'Check for tickets to a taping of SNL or another late-night show',
-          'Look into the next in-person speed puzzling competition and sign up',
-          'Check upcoming clear-sky windows to sleep under the stars'
+          { text:'Ride the Roosevelt Island Tramway round-trip — go right before sunset for the skyline', cat:'NYC', time:'1 hr' },
+          { text:'Walk the Brooklyn Bridge at sunrise — aim to be on the bridge by first light', cat:'NYC', time:'1.5 hr' },
+          { text:'Check for tickets to a taping of SNL or another late-night show', cat:'NYC', time:'5 min' },
+          { text:'Look into the next in-person speed puzzling competition and sign up', cat:'Creative', time:'10 min' },
+          { text:'Check upcoming clear-sky windows to sleep under the stars', cat:'Travel', time:'10 min' }
         ];
         var weekIdx = Math.floor(daysBetween(new Date(2026,0,1), d) / 7);
-        items.push({ slug:'wildcard', text: pool[((weekIdx % pool.length) + pool.length) % pool.length] });
+        var w = pool[((weekIdx % pool.length) + pool.length) % pool.length];
+        items.push({ slug:'wildcard', cat:w.cat, time:w.time, text: w.text });
         var lr2 = longRunMiles(d);
         if(lr2 !== null){
-          items.push({ slug:'move-longrun', text:'Long run: ~' + lr2 + ' miles, target pace ~9:09/mi for the sub-2:00 half marathon goal' });
+          items.push({ slug:'move-longrun', cat:'Fitness', time:(Math.round(lr2 * 9) + ' min'), text:'Long run: ~' + lr2 + ' miles, target pace ~9:09/mi for the sub-2:00 half marathon goal' });
         }
         break;
       }
       case 6:
-        if(d.getDate() <= 7){
-          items.push({ slug:'reset-header', text:'Monthly reflect / prep / reset day' });
-          var focus = listFocusForMonth(d);
-          if(focus){
-            items.push({ slug:'letters-list', text: '20–30 min on "' + focus + '" — this month’s stop in the four-list rotation' });
-          }
-          items.push({ slug:'sewing-pick-days', text:'Pick this month’s 4 sewing days (2.5 hrs each) and pull them into their weeks using the goal selector below' });
-          items.push({ slug:'bd-prep', text:'BD prep: research and shortlist 3–5 people/companies to reach out to this month (the actual outreach happens Mondays)' });
-          var ymKey54 = d.getFullYear() + '-' + pad(d.getMonth() + 1);
-          if(['2026-10','2026-11','2026-12'].indexOf(ymKey54) !== -1){
-            items.push({ slug:'website-piece', text:'Draft and publish this month’s website piece (1 of 3 for jessicaslocum.com)' });
-          }
-          var monthBdays = birthdaysInMonth(d.getMonth() + 1);
-          if(monthBdays.length){
-            var names = monthBdays.map(function(b){ return b[2] + ' (' + b[3] + ')'; }).join(', ');
-            items.push({ slug:'monthly-cards', text: 'Write this month’s birthday cards/texts: ' + names });
-          } else {
-            items.push({ slug:'monthly-cards', text: 'No birthdays on the list this month — send a just-because card or letter instead, toward the 50 total' });
-          }
-          var supperYm = d.getFullYear() + '-' + pad(d.getMonth() + 1);
-          if(SUPPER_MONTHS.indexOf(supperYm) !== -1 && supperYm !== MEXICO_MONTH){
-            var supperTheme = (supperYm === '2026-09') ? ' — kickoff theme: "hot takes hot bites"' : '';
-            items.push({ slug:'supper-plan', text:'Pick this month’s supper club date and theme, send the invite' + supperTheme });
-          }
-        } else {
-          items.push({ slug:'letters-cards', text:'Catch up on any of this month’s birthday cards not yet sent' });
+        if(d.getDate() > 7){
+          items.push({ slug:'letters-cards', cat:'Relationships', time:'10 min', text:'Catch up on any of this month’s birthday cards not yet sent' });
         }
-        items.push({ slug:'letters-review', text:'Weekly review: glance at the countdown, check off what happened, pick next week’s one big focus' });
+        items.push({ slug:'letters-review', cat:'Admin', time:'10 min', text:'Weekly review: glance at the countdown, check off what happened, pick next week’s one big focus' });
         break;
     }
 
     // Daily / active-phase overlays
     var pu = pushupTarget(d);
     if(pu !== null && (mi === 1 || mi === 3 || mi === 5)){
-      items.push({ slug:'pushups', text:'Push-ups: 3 sets, today’s target ~' + pu + ' reps toward the full 40 in a row' });
+      items.push({ slug:'pushups', cat:'Fitness', time:'10 min', text:'Push-ups (3 sets of ' + pu + ' reps)' });
     }
     var pl = plankSeconds(d);
     if(pl !== null){
-      items.push({ slug:'plank-am', text:'Squats through morning teeth brushing + plank hold: ' + fmtMinSec(pl.secs) + ' (week ' + pl.week + ' of 4)' });
-      items.push({ slug:'plank-pm', text:'Squats through night teeth brushing + plank hold: ' + fmtMinSec(pl.secs) + ' (week ' + pl.week + ' of 4)' });
+      items.push({ slug:'squats-day', cat:'Fitness', time:'5 min', text:'Squats (during brushing)' });
+      items.push({ slug:'plank-day', cat:'Fitness', time: fmtMinSec(pl.secs * 2), text:'Plank hold (2 reps of ' + fmtMinSec(pl.secs) + ')' });
     }
     if(inRange(d, '2026-11-01', '2026-11-30')){
-      items.push({ slug:'sleep', text:'Sleep routine: A/C on early, push-ups/plank done for the day, medication on schedule, phone away by 10pm, hair + eye mask, lights out by 10:30pm, same wake time (skip on any flight day)' });
+      items.push({ slug:'sleep', cat:'Fitness', time:'30 min', text:'Sleep routine: A/C on early, push-ups/plank done for the day, medication on schedule, phone away by 10pm, hair + eye mask, lights out by 10:30pm, same wake time (skip on any flight day)' });
     }
-    if(inRange(d, '2026-12-01', '2026-12-31')){
-      items.push({ slug:'skincare-theme', text:'Skincare theme month: stick to AM/PM routine — retinol night Tue/Thu/Sat' });
+    var skincareTheme = inRange(d, '2026-12-01', '2026-12-31');
+    var themeSuffix = skincareTheme ? ' (skincare theme month)' : '';
+    if(mi === 0 || mi === 4){ // Mon & Fri
+      items.push({ slug:'skincare-daily', cat:'Beauty', time:'5 min', text:'Exfoliate' + themeSuffix });
+    } else if(mi === 1 || mi === 3 || mi === 5){ // Tue, Thu & Sat
+      items.push({ slug:'skincare-daily', cat:'Beauty', time:'2 min', text:'Retinol' + themeSuffix });
     }
     return items;
   }
 
+  // ---------- Monthly items pulled out of the fixed Sunday slot — suggested,
+  // shown undated so they can be assigned to whichever day makes sense ----------
+  var LIST_HINTS = {
+    'Official favorite books list': 'put the pre-created list into a doc, look for anything missing, and flag which to reread.',
+    'Official favorite movies list': 'put the pre-created list into a doc, look for anything missing, and flag what to re-watch.',
+    'Official favorite albums list': 'put the pre-created list into a doc, look for anything missing, and flag which to relisten to.',
+    'Personal canon of 40': 'put the pre-created list into a doc, and identify the next work to add.'
+  };
+  function monthlySuggestions(monday){
+    var sunday = addDays(monday, 6);
+    if(sunday.getDate() > 7) return [];
+    var out = [];
+    var focus = listFocusForMonth(sunday);
+    if(focus){
+      out.push({ slug:'letters-list', cat:'Media', time:'20–30 min', text: 'Work on "' + focus + '"', hint: LIST_HINTS[focus] || null });
+    }
+    out.push({ slug:'sewing-pick-days', cat:'Creative', time:'10 min', text:'Select this month’s 4 sewing days (2.5 hrs each) and add to the calendar' });
+    out.push({ slug:'bd-prep', cat:'Career', time:'15 min', text:'BD prep: research and shortlist 3–5 people/companies to reach out to this month', hint:'start with researching interesting education companies that are not yet hiring.' });
+    var ymKey54 = sunday.getFullYear() + '-' + pad(sunday.getMonth() + 1);
+    if(['2026-10','2026-11','2026-12'].indexOf(ymKey54) !== -1){
+      out.push({ slug:'website-piece', cat:'Career', time:'1 hr', text:'Draft this month’s personal website piece', hint:'develop a list of page additions you’d like to add, then pick #1.' });
+    }
+    var monthBdays = birthdaysInMonth(sunday.getMonth() + 1);
+    if(monthBdays.length){
+      var names = monthBdays.map(function(b){ return b[2] + ' (' + b[3] + ')'; }).join(', ');
+      out.push({ slug:'monthly-cards', cat:'Relationships', time:'20–30 min', text: 'Write this month’s birthday cards/texts: ' + names });
+    } else {
+      out.push({ slug:'monthly-cards', cat:'Relationships', time:'20–30 min', text: 'No birthdays on the list this month — send a just-because card or letter instead, toward the 50 total' });
+    }
+    var supperYm = sunday.getFullYear() + '-' + pad(sunday.getMonth() + 1);
+    if(SUPPER_MONTHS.indexOf(supperYm) !== -1 && supperYm !== MEXICO_MONTH){
+      var supperTheme = (supperYm === '2026-09') ? ' — kickoff theme: "hot takes hot bites"' : '';
+      out.push({ slug:'supper-plan', cat:'Relationships', time:'10 min', text:'Pick this month’s supper club date, theme, find a co-host, and draft invite' + supperTheme });
+    }
+    return out;
+  }
+
   // ---------- Exact-dated highlight events ----------
   var DATED_EVENTS = [
-    { date:'2026-09-09', text:'Priya Parker book signing' },
-    { date:'2026-09-15', text:'Running gait/strength assessment, 4:00pm' },
-    { date:'2026-10-07', text:'Birthday day-of: Manhattan walk N–S, psychic visit, maybe the 4am dance club' },
-    { date:'2026-10-22', text:'New Orleans trip begins' },
-    { date:'2026-10-23', text:'New Orleans trip' },
-    { date:'2026-10-24', text:'New Orleans trip' },
-    { date:'2026-10-25', text:'New Orleans trip ends' },
-    { date:'2026-09-13', text:'Meal prep week 1 of 6 — order groceries online + prep same day' },
-    { date:'2026-09-13', text:'Write down everyone you want to send a birthday card to — the full list, before writing any cards' },
-    { date:'2026-09-19', text:'Grocery run — meal prep tomorrow (week 2 of 6)' },
-    { date:'2026-09-20', text:'Meal prep, week 2 of 6' },
-    { date:'2026-09-26', text:'Grocery run — meal prep tomorrow (week 3 of 6)' },
-    { date:'2026-09-27', text:'Meal prep, week 3 of 6' },
-    { date:'2026-10-04', text:'Meal prep week 4 of 6 — order groceries online + prep same day' },
-    { date:'2026-10-10', text:'Grocery run — meal prep tomorrow (week 5 of 6)' },
-    { date:'2026-10-11', text:'Meal prep, week 5 of 6' },
-    { date:'2026-10-17', text:'Grocery run — meal prep tomorrow (week 6 of 6, final week)' },
-    { date:'2026-10-18', text:'Meal prep, week 6 of 6 (final week)' },
-    { date:'2026-11-27', text:'Black Friday — buy the signature earrings' },
-    { date:'2027-01-05', text:'Registration opens (est.) for RBC Brooklyn Half Marathon — register as soon as it opens' },
-    { date:'2027-02-14', text:'Nike 14-week half marathon training plan begins' },
-    { date:'2027-05-22', text:'RBC Brooklyn Half Marathon (date preliminary) — race day, target sub-2:00' },
-    { date:'2027-10-07', text:'The big one — my 40th birthday' }
+    { date:'2026-09-09', text:'Priya Parker book signing', cat:'Media', time:'1.5 hr' },
+    { date:'2026-09-15', text:'Running gait/strength assessment, 4:00pm', cat:'Fitness', time:'1.5 hr' },
+    { date:'2026-10-07', text:'Birthday day-of: Manhattan walk N–S, psychic visit, maybe the 4am dance club', cat:'NYC', time:'All day' },
+    { date:'2026-10-22', text:'New Orleans trip begins', cat:'Travel', time:'All day' },
+    { date:'2026-10-23', text:'New Orleans trip', cat:'Travel', time:'All day' },
+    { date:'2026-10-24', text:'New Orleans trip', cat:'Travel', time:'All day' },
+    { date:'2026-10-25', text:'New Orleans trip ends', cat:'Travel', time:'All day' },
+    { date:'2026-09-13', text:'Meal prep week 1 of 6 — order groceries online + prep same day', cat:'Fitness', time:'1.5 hr' },
+    { date:'2026-09-13', text:'Write down everyone you want to send a birthday card to — the full list, before writing any cards', cat:'Relationships', time:'15 min' },
+    { date:'2026-09-19', text:'Grocery run — meal prep tomorrow (week 2 of 6)', cat:'Fitness', time:'20 min' },
+    { date:'2026-09-20', text:'Meal prep, week 2 of 6', cat:'Fitness', time:'1.5 hr' },
+    { date:'2026-09-26', text:'Grocery run — meal prep tomorrow (week 3 of 6)', cat:'Fitness', time:'20 min' },
+    { date:'2026-09-27', text:'Meal prep, week 3 of 6', cat:'Fitness', time:'1.5 hr' },
+    { date:'2026-10-01', text:'Bra fitting window opens — $20 off $50 Victoria’s Secret, good through Oct 12', cat:'Beauty', time:'30 min' },
+    { date:'2026-10-04', text:'Meal prep week 4 of 6 — order groceries online + prep same day', cat:'Fitness', time:'1.5 hr' },
+    { date:'2026-10-10', text:'Grocery run — meal prep tomorrow (week 5 of 6)', cat:'Fitness', time:'20 min' },
+    { date:'2026-10-11', text:'Meal prep, week 5 of 6', cat:'Fitness', time:'1.5 hr' },
+    { date:'2026-10-17', text:'Grocery run — meal prep tomorrow (week 6 of 6, final week)', cat:'Fitness', time:'20 min' },
+    { date:'2026-10-18', text:'Meal prep, week 6 of 6 (final week)', cat:'Fitness', time:'1.5 hr' },
+    { date:'2026-11-27', text:'Black Friday — buy the signature earrings', cat:'Beauty', time:'30 min' },
+    { date:'2027-01-05', text:'Registration opens (est.) for RBC Brooklyn Half Marathon — register as soon as it opens', cat:'Fitness', time:'5 min' },
+    { date:'2027-02-14', text:'Nike 14-week half marathon training plan begins', cat:'Fitness', time:null },
+    { date:'2027-05-22', text:'RBC Brooklyn Half Marathon (date preliminary) — race day, target sub-2:00', cat:'Fitness', time:'~2 hr' },
+    { date:'2027-10-07', text:'The big one — my 40th birthday', cat:'Legacy', time:'All day' }
   ];
 
   // ---------- Persisted state (db capability, localStorage fallback) ----------
@@ -2151,10 +2229,19 @@
     });
   }
 
+  var pendingLocalWrite = 0;
   function persist(){
     pruneOldState();
     if(dbDoc){
-      dbDoc.set(state).catch(function(){ saveLocal(); });
+      pendingLocalWrite++;
+      var myWrite = pendingLocalWrite;
+      var snapshotOfState = JSON.parse(JSON.stringify(state));
+      dbDoc.set(snapshotOfState).then(function(){
+        if(pendingLocalWrite === myWrite) pendingLocalWrite = 0;
+      }).catch(function(){
+        if(pendingLocalWrite === myWrite) pendingLocalWrite = 0;
+        saveLocal();
+      });
     } else {
       saveLocal();
     }
@@ -2182,6 +2269,10 @@
       }
       dbDoc = db.doc('state/weekly');
       dbDoc.onSnapshot(function(snap){
+        // Skip applying a snapshot while a local write is still in flight — otherwise a
+        // slightly-delayed echo of an OLDER document can clobber a change just made here,
+        // which looks exactly like "I clicked a button and nothing happened."
+        if(pendingLocalWrite){ stateLoaded = true; return; }
         if(snap.exists){
           var d = snap.data();
           state.checked = d.checked || {};
@@ -2217,34 +2308,76 @@
       dayItems.forEach(function(it){
         var id = wk + '|' + dIso + '|' + it.slug;
         if(state.deferred[id]) return; // pushed away from this week
-        var hl = null;
-        DATED_EVENTS.forEach(function(ev){ if(ev.date === dIso && ev.text === it.text) hl = true; });
-        rows.push({ id:id, dateIso:dIso, dayIndex:i, text:it.text, highlight:false, extra:false });
+        rows.push({ id:id, dateIso:dIso, dayIndex:i, text:it.text, cat:it.cat||null, time:it.time||null, hint:it.hint||null, highlight:false, extra:false, suggested:false });
       });
       DATED_EVENTS.forEach(function(ev){
         if(ev.date === dIso){
           var evId = 'event|' + ev.date;
           if(state.deferred[evId]) return;
-          rows.push({ id:evId, dateIso:dIso, dayIndex:i, text:ev.text, highlight:true, extra:false });
+          rows.push({ id:evId, dateIso:dIso, dayIndex:i, text:ev.text, cat:ev.cat||null, time:ev.time||null, hint:null, highlight:true, extra:false, suggested:false });
         }
       });
     }
 
     (state.extras[wk] || []).forEach(function(ex){
-      rows.push({ id:ex.id, dateIso:null, dayIndex:-1, text:ex.text, highlight:false, extra:true });
+      var dIdx = -1, dIso2 = null;
+      if(ex.date){
+        var diff = Math.round(daysBetween(monday, new Date(ex.date + 'T00:00:00')));
+        if(diff >= 0 && diff < 7){ dIdx = diff; dIso2 = ex.date; }
+      }
+      rows.push({ id:ex.id, dateIso:dIso2, dayIndex:dIdx, text:ex.text, cat:ex.cat||null, time:ex.time||null, hint:ex.hint||null, highlight:false, extra:true, suggested:false });
     });
 
-    rows.sort(function(a,b){ return a.dayIndex - b.dayIndex; });
+    // Monthly items that used to be forced onto Sunday — shown undated so they can be assigned a day.
+    monthlySuggestions(monday).forEach(function(it){
+      var id = wk + '|suggested|' + it.slug;
+      if(state.deferred[id]) return; // skipped, or already turned into a dated extra
+      rows.push({ id:id, dateIso:null, dayIndex:-1, text:it.text, cat:it.cat||null, time:it.time||null, hint:it.hint||null, highlight:false, extra:false, suggested:true });
+    });
+
+    // Group by day, Fitness items first within each day, otherwise keep original order.
+    rows.sort(function(a,b){
+      if(a.dayIndex !== b.dayIndex) return a.dayIndex - b.dayIndex;
+      var af = a.cat === 'Fitness' ? 0 : 1, bf = b.cat === 'Fitness' ? 0 : 1;
+      return af - bf;
+    });
     return rows;
   }
 
   function nextWeekKey(monday){ return iso(addDays(monday, 7)); }
 
   function pushToNextWeek(row, monday){
-    state.deferred[row.id] = true;
+    if(row.extra){
+      // Pulled-in extras aren't regenerated each render, so remove the original directly
+      // rather than relying on the deferred map (which only rhythm/suggested items check).
+      var wkCur = iso(monday);
+      if(state.extras[wkCur]){
+        state.extras[wkCur] = state.extras[wkCur].filter(function(ex){ return ex.id !== row.id; });
+      }
+    } else {
+      state.deferred[row.id] = true;
+    }
     var wk = nextWeekKey(monday);
     if(!state.extras[wk]) state.extras[wk] = [];
-    state.extras[wk].push({ id: 'extra-' + Date.now() + '-' + Math.random().toString(36).slice(2,7), text: row.text });
+    state.extras[wk].push({ id: 'extra-' + Date.now() + '-' + Math.random().toString(36).slice(2,7), text: row.text, cat: row.cat, time: row.time, hint: row.hint });
+    persist();
+    render();
+  }
+
+  // Assign an undated row (a pulled-in extra, or one of the monthly suggestions) to a specific day this week.
+  function assignRowToDay(row, monday, dayIdx){
+    var wk = iso(monday);
+    var dateIso = iso(addDays(monday, dayIdx));
+    if(row.suggested){
+      state.deferred[row.id] = true;
+      if(!state.extras[wk]) state.extras[wk] = [];
+      state.extras[wk].push({ id: 'extra-' + Date.now() + '-' + Math.random().toString(36).slice(2,7), text: row.text, cat: row.cat, time: row.time, hint: row.hint, date: dateIso });
+    } else if(row.extra){
+      var arr = state.extras[wk] || [];
+      for(var i = 0; i < arr.length; i++){
+        if(arr[i].id === row.id){ arr[i].date = dateIso; break; }
+      }
+    }
     persist();
     render();
   }
@@ -2259,9 +2392,46 @@
     render();
   }
 
+  function skipSuggestion(row){
+    state.deferred[row.id] = true;
+    delete state.checked[row.id];
+    persist();
+    render();
+  }
+
   function toggleChecked(id, val){
     state.checked[id] = val;
     persist();
+  }
+
+  function gcalUrl(dateIso, title){
+    var start = dateIso.replace(/-/g, '');
+    var end = iso(addDays(new Date(dateIso + 'T00:00:00'), 1)).replace(/-/g, '');
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + start + '/' + end;
+  }
+
+  function plainText(html){
+    var t = document.createElement('textarea');
+    t.innerHTML = html;
+    return t.value;
+  }
+
+  // Parse a display time string ("40 min", "1.5 hr", "90s", "1 min 30s") into seconds.
+  function timeStrToSeconds(str){
+    if(!str) return 0;
+    var total = 0;
+    var hr = str.match(/([\d.]+)\s*hr/);
+    if(hr) total += parseFloat(hr[1]) * 3600;
+    var min = str.match(/(\d+)\s*min/);
+    if(min) total += parseInt(min[1], 10) * 60;
+    var sec = str.match(/(\d+)\s*s\b/);
+    if(sec) total += parseInt(sec[1], 10);
+    return total;
+  }
+  function secondsToTimeStr(total){
+    if(total <= 0) return '';
+    if(total < 60) return total + 's';
+    return Math.round(total / 60) + ' min';
   }
 
   // ---------- Render ----------
@@ -2277,15 +2447,20 @@
     if(jumpEl) jumpEl.hidden = isCurrent;
 
     listEl.innerHTML = '';
-    var lastDayIndex = null;
-    rows.forEach(function(row){
-      var li = document.createElement('li');
-      li.className = 'week-item';
-      if(row.dayIndex !== lastDayIndex){ li.classList.add('day-start'); lastDayIndex = row.dayIndex; }
-      var d = row.dateIso ? new Date(row.dateIso + 'T00:00:00') : null;
-      if(d && iso(d) === iso(today)) li.classList.add('is-today-row');
+
+    function dayHeadLabel(d){
+      return d.toLocaleDateString('en-US', { weekday:'short' }).toUpperCase() + ' ' +
+             d.toLocaleDateString('en-US', { month:'short' }).toUpperCase() + ' ' + d.getDate();
+    }
+
+    var DAY_ABBR = ['M','T','W','T','F','S','S'];
+    var DAY_FULL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+    function renderRow(row){
+      var item = document.createElement('div');
+      item.className = 'week-item';
       var checked = !!state.checked[row.id];
-      if(checked) li.classList.add('is-done');
+      if(checked) item.classList.add('is-done');
 
       var label = document.createElement('label');
       label.className = 'chk';
@@ -2293,7 +2468,7 @@
       input.type = 'checkbox';
       input.checked = checked;
       input.addEventListener('change', function(){
-        li.classList.toggle('is-done', input.checked);
+        item.classList.toggle('is-done', input.checked);
         toggleChecked(row.id, input.checked);
       });
       var box = document.createElement('span');
@@ -2303,37 +2478,80 @@
 
       var body = document.createElement('div');
       body.className = 'wi-body';
-      var meta = document.createElement('div');
-      meta.className = 'wi-meta';
-      var daySpan = document.createElement('span');
-      daySpan.className = 'wi-day';
-      daySpan.textContent = d ? fmtDay(d) : 'This week';
-      meta.appendChild(daySpan);
-      if(row.highlight){
-        var tag = document.createElement('span');
-        tag.className = 'wi-tag';
-        tag.textContent = 'Dated';
-        meta.appendChild(tag);
-      }
-      if(row.extra){
-        var tag2 = document.createElement('span');
-        tag2.className = 'wi-tag';
-        tag2.textContent = 'Added';
-        meta.appendChild(tag2);
-      }
       var textDiv = document.createElement('div');
       textDiv.className = 'wi-text';
-      textDiv.innerHTML = row.text;
-      body.appendChild(meta);
+      textDiv.innerHTML = row.cat ? ('<strong>' + row.cat + ':</strong> ' + row.text) : row.text;
       body.appendChild(textDiv);
+      if(row.highlight || row.extra || row.suggested){
+        var meta = document.createElement('div');
+        meta.className = 'wi-meta';
+        if(row.highlight){
+          var tag = document.createElement('span');
+          tag.className = 'wi-tag';
+          tag.textContent = 'Dated';
+          meta.appendChild(tag);
+        }
+        if(row.extra){
+          var tag2 = document.createElement('span');
+          tag2.className = 'wi-tag';
+          tag2.textContent = 'Added';
+          meta.appendChild(tag2);
+        }
+        if(row.suggested){
+          var tag3 = document.createElement('span');
+          tag3.className = 'wi-tag';
+          tag3.textContent = 'Suggested';
+          meta.appendChild(tag3);
+        }
+        body.appendChild(meta);
+      }
+      if(row.hint){
+        var hintDiv = document.createElement('div');
+        hintDiv.className = 'wi-hint';
+        hintDiv.textContent = 'Suggested step: ' + row.hint;
+        body.appendChild(hintDiv);
+      }
+
+      var timeSpan = document.createElement('div');
+      timeSpan.className = 'wi-time mono';
+      timeSpan.textContent = row.time || '';
 
       var actions = document.createElement('div');
       actions.className = 'wi-actions';
-      var pushBtn = document.createElement('button');
-      pushBtn.className = 'wi-push';
-      pushBtn.textContent = 'Next week →';
-      pushBtn.addEventListener('click', function(){ pushToNextWeek(row, monday); });
-      actions.appendChild(pushBtn);
+
+      if(row.dayIndex === -1){
+        var picker = document.createElement('div');
+        picker.className = 'day-picker';
+        DAY_ABBR.forEach(function(letter, dayIdx){
+          var dBtn = document.createElement('button');
+          dBtn.className = 'day-picker-btn';
+          dBtn.type = 'button';
+          dBtn.textContent = letter;
+          dBtn.title = 'Move to ' + DAY_FULL[dayIdx];
+          dBtn.addEventListener('click', function(){ assignRowToDay(row, monday, dayIdx); });
+          picker.appendChild(dBtn);
+        });
+        actions.appendChild(picker);
+      } else if(row.dateIso){
+        var calTitle = row.isFitnessBlock ? ('Fitness' + (row.fbTotal ? ' (' + row.fbTotal + ')' : '')) : ((row.cat ? row.cat + ': ' : '') + plainText(row.text));
+        var calLink = document.createElement('a');
+        calLink.className = 'wi-cal';
+        calLink.href = gcalUrl(row.dateIso, calTitle);
+        calLink.target = '_blank';
+        calLink.rel = 'noopener';
+        calLink.textContent = 'Calendar';
+        actions.appendChild(calLink);
+      }
+
+      if(!row.suggested){
+        // A "Suggested" row already has the day-picker (place it this week) and a skip
+        // button — a second, overlapping "push to next week" control there is just clutter.
+        var pushBtn = document.createElement('button');
+        pushBtn.className = 'wi-push';
+        pushBtn.textContent = 'Next week →';
+        pushBtn.addEventListener('click', function(){ pushToNextWeek(row, monday); });
+        actions.appendChild(pushBtn);
+      }
       if(row.extra){
         var rmBtn = document.createElement('button');
         rmBtn.className = 'wi-remove';
@@ -2341,16 +2559,71 @@
         rmBtn.textContent = '×';
         rmBtn.addEventListener('click', function(){ removeExtra(row, monday); });
         actions.appendChild(rmBtn);
+      } else if(row.suggested){
+        var skipBtn = document.createElement('button');
+        skipBtn.className = 'wi-remove';
+        skipBtn.setAttribute('aria-label', 'Skip this week');
+        skipBtn.textContent = '×';
+        skipBtn.addEventListener('click', function(){ skipSuggestion(row); });
+        actions.appendChild(skipBtn);
       }
 
-      li.appendChild(label);
-      li.appendChild(body);
-      li.appendChild(actions);
-      listEl.appendChild(li);
+      item.appendChild(label);
+      item.appendChild(body);
+      item.appendChild(timeSpan);
+      item.appendChild(actions);
+      return item;
+    }
+
+    // Group rows by dayIndex (-1 = no fixed date / pulled-in extras, then Mon..Sun).
+    var groups = {};
+    var order = [];
+    rows.forEach(function(row){
+      if(!(row.dayIndex in groups)){ groups[row.dayIndex] = []; order.push(row.dayIndex); }
+      groups[row.dayIndex].push(row);
+    });
+    order.sort(function(a,b){ return a - b; });
+
+    // On an actual dated day (not the undated "THIS WEEK" bucket), collapse every Fitness
+    // row into one combined block so the day reads as one line, not four.
+    function collapseFitness(dayRows, wk, dateIso, dayIndex){
+      var fitnessRows = dayRows.filter(function(r){ return r.cat === 'Fitness'; });
+      if(!fitnessRows.length) return dayRows;
+      var otherRows = dayRows.filter(function(r){ return r.cat !== 'Fitness'; });
+      var totalSec = 0;
+      var itemsHtml = fitnessRows.map(function(r){
+        totalSec += timeStrToSeconds(r.time);
+        return '<li><span class="fb-time mono">' + (r.time || '') + '</span> ' + r.text + '</li>';
+      }).join('');
+      var totalLabel = secondsToTimeStr(totalSec);
+      var html = '<div class="fb-head">Fitness <span class="fb-total mono">| ' + totalLabel + '</span></div>' +
+                 '<ul class="fb-list">' + itemsHtml + '</ul>';
+      var combined = {
+        id: wk + '|' + dateIso + '|fitness-block', dateIso: dateIso, dayIndex: dayIndex,
+        text: html, cat: null, time: null, hint: null, highlight: false, extra: false, suggested: false,
+        isFitnessBlock: true, fbTotal: totalLabel
+      };
+      return [combined].concat(otherRows);
+    }
+
+    order.forEach(function(dayIndex){
+      var head = document.createElement('div');
+      head.className = 'week-day-head';
+      var dayRows = groups[dayIndex];
+      if(dayIndex === -1){
+        head.textContent = 'THIS WEEK';
+      } else {
+        var d = addDays(monday, dayIndex);
+        head.textContent = dayHeadLabel(d);
+        if(iso(d) === iso(today)) head.classList.add('is-today');
+        dayRows = collapseFitness(dayRows, iso(monday), iso(d), dayIndex);
+      }
+      listEl.appendChild(head);
+      dayRows.forEach(function(row){ listEl.appendChild(renderRow(row)); });
     });
 
     if(!rows.length){
-      var empty = document.createElement('li');
+      var empty = document.createElement('div');
       empty.className = 'week-item';
       empty.innerHTML = '<div class="wi-body"><div class="wi-text" style="color:var(--ink-faint);">Nothing left this week — pull something forward below, or enjoy the clear week.</div></div>';
       listEl.appendChild(empty);
@@ -2360,11 +2633,24 @@
   prevBtn && prevBtn.addEventListener('click', function(){ currentMonday = addDays(currentMonday, -7); render(); });
   nextBtn && nextBtn.addEventListener('click', function(){ currentMonday = addDays(currentMonday, 7); render(); });
   jumpEl && jumpEl.addEventListener('click', function(){ currentMonday = thisMonday; render(); });
+  var CATEGORY_RANGES = [
+    [1,7,'Fitness'], [8,13,'Beauty'], [14,22,'Media'], [23,28,'Food'], [29,33,'Creative'],
+    [34,38,'Travel'], [39,48,'NYC'], [49,50,'Relationships'], [51,57,'Career'], [58,64,'Legacy']
+  ];
+  function categoryForIdx(idx){
+    for(var i = 0; i < CATEGORY_RANGES.length; i++){
+      if(idx >= CATEGORY_RANGES[i][0] && idx <= CATEGORY_RANGES[i][1]) return CATEGORY_RANGES[i][2];
+    }
+    return null;
+  }
   addBtn && addBtn.addEventListener('click', function(){
     if(!addSelect || !addSelect.value) return;
     var wk = iso(currentMonday);
     if(!state.extras[wk]) state.extras[wk] = [];
-    state.extras[wk].push({ id: 'extra-' + Date.now() + '-' + Math.random().toString(36).slice(2,7), text: addSelect.value });
+    var m = addSelect.value.match(/^(\d+)\s*·\s*(.+)$/);
+    var idxNum = m ? parseInt(m[1], 10) : null;
+    var cleanText = m ? m[2] : addSelect.value;
+    state.extras[wk].push({ id: 'extra-' + Date.now() + '-' + Math.random().toString(36).slice(2,7), text: cleanText, cat: idxNum ? categoryForIdx(idxNum) : null });
     addSelect.value = '';
     persist();
     render();
@@ -2381,9 +2667,7 @@
     "idx": "01",
     "cat": "Fitness & Body",
     "text": "Get a professional running gait / strength assessment",
-    "status": "booked",
-    "start": "2026-09-15",
-    "end": "2026-09-15"
+    "status": "done"
   },
   {
     "idx": "02",
@@ -2467,7 +2751,9 @@
     "idx": "12",
     "cat": "Beauty & Self-care",
     "text": "Get a proper bra fitting",
-    "status": "ongoing"
+    "status": "planned",
+    "start": "2026-10-01",
+    "end": "2026-10-12"
   },
   {
     "idx": "13",
